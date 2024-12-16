@@ -1,0 +1,11 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* 使所有元素及其伪元素的 box-sizing 属性为 border-box，包含边框和内边距在内 */
+  margin: 0;             /* 将所有元素的默认外边距清零，避免不同浏览器之间的样式差异 */
+  font-weight: normal;   /* 将所有元素的字体粗细设为 normal，覆盖浏览器的默认字体粗细 */
+}
+
+body {
+  height: 100vh;     /* 设定 body 的最小高度为视口高度，确保内容至少占满整个屏幕高度 */
+}
