@@ -15,7 +15,6 @@
     <!-- 页面主体内容 -->
     <div class="home2-content">
 
-
       <!-- 房间设置弹窗 -->
       <div v-if="showRoomSettingModal" class="modal-overlay888">
         <div class="modal-content888">
@@ -30,6 +29,11 @@
               <!-- 房间标签 -->
               <div class="roomUserId">{{ roomUser.userId }}</div>
             </div>
+          </div>
+          <div class="roomInfom">
+            <div>房间名：{{ roomName }}</div>
+            <div>id:{{ currentRoomId }}</div>
+            <div>标签：{{ roomTag }}</div>
           </div>
           <div class="button-area">
             <button class="modal-close2" @click="leaveRoom">退出房间</button>
@@ -58,8 +62,8 @@
       <!-- 左侧聊天选择 -->
       <div class="chat_choose">
         <div class="chat_search">
-          <input type="text" class="search2-input" placeholder="请输入搜索内容">
-          <button class="secondbar2-link">搜索</button>
+          <input type="text" class="search2-input" v-model="searchExist" placeholder="请输入搜索内容">
+          <button class="secondbar2-link" @click="searchExistRoom">搜索</button>
         </div>
         <div class="roomshow">
           <!-- 动态生成房间列表项 -->
@@ -79,7 +83,7 @@
                   <div class="room-people-count2">{{ room.roomPeopleCount }}</div>
                 </div>
                 <!-- 最新消息 -->
-                <div class="room-latest-message2">{{ room.latestMessage }}</div>
+                <div class="room-latest-message2">{{' '}}</div>
               </div>
             </div>
           </div>
@@ -140,7 +144,7 @@
 import { ref, computed, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
-
+const socket = ref(null); // WebSocket连接对象
 const currentUserId = ref(null);
 // 定义响应式数据rooms，初始值先设为空数组，后续在onMounted中重新赋值
 const rooms = ref([]);
@@ -151,12 +155,13 @@ const roomAvater = ref(null);  // 存储房间头像
 const roomName = ref(null);  // 存储房间名字
 const currentRoomMsg = ref([]);
 const currentRoomUsers = ref([]);
-const roomUser = ref(null);
+const roomTag = ref(null);
 const showRoomSettingModal=ref(false);
 const showfriendIonfoModal = ref(false);
 const friendId=ref('');
 const friendAvatar=ref('');
 const friendName=ref('');
+const searchExist=ref('');
 
 onMounted(async () => {
   try {
@@ -164,6 +169,37 @@ onMounted(async () => {
     console.log("获取当前用户id成功", currentUserId.value);
     token.value = localStorage.getItem('token');
     console.log("获取token成功", token.value);
+
+    // WebSocket连接地址
+    const websocketUrl = `ws://your-websocket-server-url/room/${currentRoomId.value}?token=${token.value}`;
+
+    // 创建 WebSocket 连接
+    socket.value = new WebSocket(websocketUrl);
+
+    // WebSocket 连接打开时
+    socket.value.onopen = () => {
+      console.log('WebSocket连接已打开');
+    };
+
+    // WebSocket 接收到消息时
+    socket.value.onmessage = (event) => {
+      const message = JSON.parse(event.data); // 假设消息为 JSON 格式
+      console.log('收到消息:', message);
+
+      // 将收到的消息添加到当前房间的聊天记录中
+      currentRoomMsg.value.push(message);
+    };
+
+    // WebSocket 连接出错时
+    socket.value.onerror = (error) => {
+      console.error('WebSocket连接出错', error);
+    };
+
+    // WebSocket 连接关闭时
+    socket.value.onclose = () => {
+      console.log('WebSocket连接已关闭');
+    };
+
     // 从后端获取房间数据
     const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/room-choose', {
       headers: {
@@ -185,27 +221,8 @@ onMounted(async () => {
   catch (error) {
     console.error('聊天室加载失败', error);
   }
-
-
-  // 创建WebSocket连接，这里的地址需根据实际后端支持的WebSocket端点来设置
-  //   const socket = new WebSocket('ws://your-websocket-server-url');
-  //   socket.onopen = function () {
-  //     console.log('WebSocket连接已打开');
-  //   };
-  //   socket.onmessage = function (event) {
-  //     const msg = JSON.parse(event.data); // 假设后端发送的是JSON格式消息，需解析
-  //     const room = rooms.value.find((r) => r.roomId === msg.roomId);
-  //     if (room) {
-  //       room.messages.push(msg);
-  //     }
-  //   };
-  //   socket.onerror = function (error) {
-  //     console.error('WebSocket连接出错', error);
-  //   };
-  //   socket.onclose = function () {
-  //     console.log('WebSocket连接已关闭');
-  //   };
 });
+
 
 // 在页面加载时或房间ID变化时获取房间信息
 watch(currentRoomId, async (newRoomId) => {
@@ -217,6 +234,7 @@ watch(currentRoomId, async (newRoomId) => {
       console.log("更新获取房间header信息成功",response1.data);
       roomAvater.value = response1.data.roomAvater; // 假设后端返回的数据包含avatar
       roomName.value = response1.data.roomName; // 假设后端返回的数据包含roomName
+      roomTag.value=response1.data.roomTag;
     } catch (error) {
       console.error('更新获取房间header信息失败', error);
     }
@@ -249,9 +267,47 @@ watch(currentRoomId, async (newRoomId) => {
     catch (error) {
       console.error('房间加入失败', error);
     }
+
+    if (socket.value) {
+      socket.value.close(); // 关闭旧的连接
+    }
+
+    // 重新建立 WebSocket 连接
+    const websocketUrl = `ws://your-websocket-server-url/room/${newRoomId}?token=${token.value}`;
+    socket.value = new WebSocket(websocketUrl);
+
+    socket.value.onopen = () => {
+      console.log('WebSocket连接已打开');
+    };
+
+    socket.value.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      currentRoomMsg.value.push(message);
+    };
   }
 });
 
+const searchExistRoom = async () => {
+  if (searchExist.value) {
+    try {
+      const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomByRoomName', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        RoomName: searchExist.value
+      });
+      currentRoomId.value=response.data.roomId;
+      console.log('搜索房间名字成功', response.data.roomId);
+    } catch (error) {
+      showMessage("搜索失败", "error");
+      console.error('搜索房间名字失败', error);
+    }
+    searchExist.value = '';
+  }
+  else{
+    
+  }
+};
 
 const clickRoom = (room) => {
   currentRoomId.value=room.roomId.toString();
@@ -320,30 +376,27 @@ const addBlacklist = async() =>{
 const sendMessage = async () => {
   const content = document.querySelector('.chat-input').value;
   if (content) {
-    try {
-      const response1 = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getuserName&Avater'); // 替换为实际的 API 地址
-      userName1.value = response1.data.userName;
-      userAvater1.value = response1.data.userAvater;
-      const response2 = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/sendMsg', {
-        roomId: 63192,
-        userId: 23330008,
-        type: 0,
-        content: {
-          text: "跑步好累",
-          url: null,
-          meta: null
-        },
-        sendTime: "2024-12-06T22:54:00",
-        userName: userName1,
-        userAvater:userAvater1
-      });
-      console.log('发送消息成功:', response2.data);
-    }
-    catch (error) {
-      console.log('发送消息失败');
-    }
+    // 构建消息对象
+    const message = {
+      userId: currentUserId.value,
+      roomId: currentRoomId.value,
+      content: content,
+      timestamp: new Date().toISOString(), // 当前时间戳
+      userName: '用户名', // 你可以根据实际情况替换
+      userAvater: '用户头像链接', // 同上
+    };
+
+    // 通过 WebSocket 发送消息
+    socket.value.send(JSON.stringify(message));
+
+    // 将消息立即显示在聊天界面中
+    currentRoomMsg.value.push(message);
+
+    // 清空输入框
+    document.querySelector('.chat-input').value = '';
   }
 };
+
 </script>
 
   <style lang="scss">
@@ -744,13 +797,16 @@ const sendMessage = async () => {
       /* 鼠标悬停时改变背景颜色 */
     }
 
+    .send_area{
+      height: 100%;
+    }
 
     .chat-input {
       flex: 1;
       /* 让输入框占据父容器中剩余的空间 */
-      height: 140px;
+      height: 80%;
       /* 设置输入框的高度为 40px */
-      width: 1100px;
+      width: 90%;
       padding: 2px 15px 5px 10px;
       /* 设置左右内边距为 15px，使输入框内容不贴边 */
       border: 1px solid #ffffff;
@@ -869,6 +925,10 @@ const sendMessage = async () => {
       font-size: 16px;
     }
   }
+  }
+
+  .roomInfom{
+    gap: 20px;
   }
 
   .modal-overlay666 {
