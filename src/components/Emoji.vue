@@ -18,38 +18,40 @@
   </div>
 </template>
 
+
 <script>
+
 export default {
   data() {
     return {
       emojiList: [
-        require("@/assets/img/emoji/slightly-smiling-face.png"),
-        require("@/assets/img/emoji/smiling-face.png"),
-        require("@/assets/img/emoji/smiling-face-with-heart-eyes.png"),
-        require("@/assets/img/emoji/smiling-face-with-sunglasses.png"),
-        require("@/assets/img/emoji/thinking-face.png"),
-        require("@/assets/img/emoji/tired-face.png"),
-        require("@/assets/img/emoji/money-mouth-face.png"),
-        require("@/assets/img/emoji/loudly-crying-face.png"),
-        require("@/assets/img/emoji/pouting-face.png"),
-        require("@/assets/img/emoji/face-screaming-in-fear.png"),
-        require("@/assets/img/emoji/face-vomiting.png"),
-        require("@/assets/img/emoji/face-without-mouth.png"),
-        require("@/assets/img/emoji/face-with-tongue.png"),
-        require("@/assets/img/emoji/clown-face.png"),
-        require("@/assets/img/emoji/new-moon-face.png"),
-        require("@/assets/img/emoji/ghost.png"),
-        require("@/assets/img/emoji/jack-o-lantern.png"),
-        require("@/assets/img/emoji/money-bag.png"),
-        require("@/assets/img/emoji/pile-of-poo.png"),
-        require("@/assets/img/emoji/shamrock.png"),
-        require("@/assets/img/emoji/hibiscus.png"),
-        require("@/assets/img/emoji/lips.png"),
-        require("@/assets/img/emoji/sparkles.png"),
-        require("@/assets/img/emoji/star.png"),
-        require("@/assets/img/emoji/two-hearts.png"),
-        require("@/assets/img/emoji/rainbow.png"),
-        require("@/assets/img/emoji/thought-balloon.png"),
+        "/images/emoji/slightly-smiling-face.png",
+        "/images/emoji/smiling-face.png",
+        "/images/emoji/smiling-face-with-heart-eyes.png",
+        "/images/emoji/smiling-face-with-sunglasses.png",
+        "/images/emoji/thinking-face.png",
+        "/images/emoji/tired-face.png",
+        "/images/emoji/money-mouth-face.png",
+        "/images/emoji/loudly-crying-face.png",
+        "/images/emoji/pouting-face.png",
+        "/images/emoji/face-screaming-in-fear.png",
+        "/images/emoji/face-vomiting.png",
+        "/images/emoji/face-without-mouth.png",
+        "/images/emoji/face-with-tongue.png",
+        "/images/emoji/clown-face.png",
+        "/images/emoji/new-moon-face.png",
+        "/images/emoji/ghost.png",
+        "/images/emoji/jack-o-lantern.png",
+        "/images/emoji/money-bag.png",
+        "/images/emoji/pile-of-poo.png",
+        "/images/emoji/shamrock.png",
+        "/images/emoji/hibiscus.png",
+        "/images/emoji/lips.png",
+        "/images/emoji/sparkles.png",
+        "/images/emoji/star.png",
+        "/images/emoji/two-hearts.png",
+        "/images/emoji/rainbow.png",
+        "/images/emoji/thought-balloon.png",
       ],
     };
   },
@@ -67,29 +69,29 @@ export default {
 <style lang="scss" scoped>
 .emoji-content {
   .emoji {
-  width: 400px;
+  width: 360px;
   height: 200px;
-  background-color: rgb(39, 42, 55);
+  background-color: rgba(216, 216, 216, 0.897);
   position: absolute;
-  top: -220px;
-  left: -10px;
+  top: -200px;
+  left: 10px;
   border-radius: 10px;
   transition: 0.3s;
   z-index: 3;
 
-  &::after {
-    content: "";
-    display: block;
-    width: 0;
-    height: 0;
-    border-top: 10px solid rgb(39, 42, 55);
-    border-right: 10px solid transparent;
-    border-left: 10px solid transparent;
-    position: absolute;
-    bottom: -8px;
-    left: 15px;
-    z-index: 100;
-  }
+  // &::after {
+  //   content: "";
+  //   display: block;
+  //   width: 0;
+  //   height: 0;
+  //   border-top: 10px solid rgb(216, 216, 216, 0.897);
+  //   border-right: 10px solid transparent;
+  //   border-left: 10px solid transparent;
+  //   position: absolute;
+  //   bottom: -8px;
+  //   left: 15px;
+  //   z-index: 100;
+  // }
   .emoji-wrapper {
     width: 100%;
     height: 100%;
@@ -105,12 +107,12 @@ export default {
     &::-webkit-scrollbar-thumb {
       /*滚动条里面小方块*/
       border-radius: 10px;
-      box-shadow: inset 0 0 5px rgba(97, 184, 179, 0.1);
-      background: rgb(95, 101, 122);
+      box-shadow: inset 0 0 5px rgba(127, 179, 177, 0.1);
+      background: rgb(115, 117, 122);
     }
     &::-webkit-scrollbar-track {
       /*滚动条里面轨道*/
-      box-shadow: inset 0 0 5px rgba(87, 175, 187, 0.1);
+      box-shadow: inset 0 0 5px rgba(167, 183, 185, 0.1);
       border-radius: 10px;
       background: rgb(39, 42, 55);
     }

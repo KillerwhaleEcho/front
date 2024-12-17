@@ -119,8 +119,32 @@
         <div class="chat-input-container">
           <!-- 功能按钮区 -->
           <div class="func-logo">
-            <div class="document">文件</div>
-            <div class="emoji">表情</div>
+
+                <!-- 点击文件按钮，触发文件选择 -->
+                <div class="file" @click="triggerFileInput">文件</div>
+
+               <!-- 文件选择输入框，默认隐藏 -->
+                <input
+                 type="file"
+                 id="docFile"
+                 ref="fileInput"
+                 @change="sendFile"
+                 accept="application/*,text/*,image/*"
+                 style="display: none;"
+                 
+                />
+
+             <!-- 点击表情按钮，切换表情面板显示与隐藏 -->
+             <div class="emoji" @click="clickEmoji">表情</div>
+
+                <!-- 表情面板 -->
+                <div class="emoji-content">
+                 <Emoji
+                   v-show="showEmoji"
+                   @sendEmoji="sendEmoji"  
+                   @closeEmoji="clickEmoji"  
+                ></Emoji>
+                </div>
             <!-- <div class="call">通话</div> -->
             <div class="voice">语音</div>
           </div>
@@ -140,6 +164,9 @@
 import { ref, computed, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
+import Emoji from "../components/Emoji.vue";
+import FileCard from "../components/FileCard.vue";
+
 
 const currentUserId = ref(null);
 // 定义响应式数据rooms，初始值先设为空数组，后续在onMounted中重新赋值
@@ -157,6 +184,12 @@ const showfriendIonfoModal = ref(false);
 const friendId=ref('');
 const friendAvatar=ref('');
 const friendName=ref('');
+const showEmoji = ref(false);
+const fileInput = ref(null);
+const selectedFile = ref(null);
+const fileType = ref(0); 
+
+
 
 onMounted(async () => {
   try {
@@ -252,6 +285,81 @@ watch(currentRoomId, async (newRoomId) => {
   }
 });
 
+// 切换表情面板显示
+const clickEmoji = () => {
+  showEmoji.value = !showEmoji.value;
+  console.log("click使showEmoji更改为", showEmoji.value);
+};
+
+// 处理发送表情的事件
+const sendEmoji = (item) => {
+  console.log("发送表情:", item.value);
+  //下面会实现点击表情后直接sendmessage发送出去
+   
+};
+
+// 点击文件按钮，触发文件选择框
+const triggerFileInput = () => {
+  fileInput.value.click();  // 触发 <input type="file" /> 的 click 事件
+};
+
+// 处理文件选择并上传
+const sendFile = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    selectedFile.value = file;  // 保存选中的文件
+    console.log('选中的文件:', file);
+    fileType.value = getFileType(file);
+
+    // 此处可以处理文件上传操作，例：
+    // const formData = new FormData();
+    // formData.append('file', file);
+    // axios.post('upload_url', formData)
+    //   .then(response => console.log('文件上传成功', response))
+    //   .catch(error => console.error('文件上传失败', error));
+
+      // 现在为了演示，假设文件已经上传并返回了一个文件链接
+      const fileUrl = URL.createObjectURL(selectedFile.value); // 获取文件的临时链接
+      chatMessages.value.push({
+        id: Date.now(),
+        type: "file",
+        content: fileUrl, // 发送文件的 URL 或链接
+      });
+
+      // 清空文件选择
+      selectedFile.value = null;
+  }
+};
+
+ // 根据文件类型判断文件类型
+ const getFileType = (file) => {
+      const ext = file.name.split('.').pop().toLowerCase();
+      switch (ext) {
+        case 'docx':
+        case 'doc':
+          return 1; // Word
+        case 'xlsx':
+        case 'xls':
+          return 2; // Excel
+        case 'pptx':
+        case 'ppt':
+          return 3; // PPT
+        case 'pdf':
+          return 4; // PDF
+        case 'zip':
+          return 5; // Zip
+        case 'txt':
+          return 6; // Text file
+        default:
+          return 0; // Unknown file type
+      }
+    };
+
+    // 向聊天框发送文件
+    const sendFileToChat = () => {
+
+    };
+
 
 const clickRoom = (room) => {
   currentRoomId.value=room.roomId.toString();
@@ -329,15 +437,16 @@ const sendMessage = async () => {
         userId: 23330008,
         type: 0,
         content: {
-          text: "跑步好累",
+          text: content,
           url: null,
           meta: null
         },
-        sendTime: "2024-12-06T22:54:00",
+        sendTime: new Date().toISOString,
         userName: userName1,
         userAvater:userAvater1
       });
       console.log('发送消息成功:', response2.data);
+      document.querySelector('.chat-input').value = ''; // 清空输入框
     }
     catch (error) {
       console.log('发送消息失败');
@@ -711,6 +820,7 @@ const sendMessage = async () => {
     }
 
     .func-logo {
+      position: relative;
       display: flex;
       /* 使用 flex 布局，使子元素水平排列 */
       gap: 20px;
@@ -796,6 +906,20 @@ const sendMessage = async () => {
       background-color: #e0e0e0;
       /* 鼠标悬停时，按钮背景颜色变为深蓝色 (#005bb5) */
     }
+
+    .emoji {
+    position: relative;  /* 使得它成为定位上下文 */
+    width: 80px;
+    height: 40px;
+    background-color: #3b3b3b;
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10; /* 确保它在其他元素之上 */
+}
   }
   .modal-overlay888 {
     position: fixed;
