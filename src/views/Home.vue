@@ -99,10 +99,10 @@
           </div>
           <form @submit.prevent="createRoom">
             <!-- 房间号 -->
-            <div>
+            <!-- <div>
               <label>房间号：</label>
               <span>{{ roomId }}</span>
-            </div>
+            </div> -->
 
             <!-- 房间名 -->
             <div>
@@ -217,7 +217,7 @@
 
   const router = useRouter(); // 初始化路由实例
   // 表单数据
-  const roomId = ref(Math.floor(Math.random() * 1000000)); // 自动生成房间号
+  const roomId = ref(''); // 自动生成房间号
   const roomName = ref('');
   const roomTag = ref(''); 
   const roomType = ref('public');
@@ -229,7 +229,7 @@
   const showTagModal = ref(false);
   const showTagRoomModal = ref(false);
   const showSearchModal = ref(false);
-  const showUserModal=ref('');
+  const showUserModal=ref(false);
   const searchInput = ref('');
   const tags = ref([]);
   const sugTags = ref([]);
@@ -270,11 +270,11 @@ const startchattingRoom = async (user) =>{
         headers: {
            'Authorization': `Bearer ${token}`
         },
-        "roomId":roomId.value,
         "roomName":user.userName,
         "roomType":"private",
         "roomAvatar":user.userAvatar
       });
+      roomId.value=response.data.roomId;
       console.log('发起聊天成功', response.data);
       localStorage.setItem("currentRoomId",roomId.value);
       router.push('/chat');
@@ -315,12 +315,12 @@ const startchattingRoom = async (user) =>{
         headers: {
            'Authorization': `Bearer ${token}`
         },
-        "roomId":roomId.value,
         "roomName":roomName.value,
         "roomTag":roomTag.value,
         "roomType":roomType.value,
         "roomAvatar":avatar2.value
       });
+      roomId.value=response.data.roomId;
       console.log('房间创建成功', response.data);
       localStorage.setItem("currentRoomId",roomId.value);
       router.push('/chat');
