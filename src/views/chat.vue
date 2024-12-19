@@ -375,15 +375,7 @@ const sendFile = (event) => {
     //   .catch(error => console.error('文件上传失败', error));
 
       // 现在为了演示，假设文件已经上传并返回了一个文件链接
-      const fileUrl = URL.createObjectURL(selectedFile.value); // 获取文件的临时链接
-      chatMessages.value.push({
-        id: Date.now(),
-        type: "file",
-        content: fileUrl, // 发送文件的 URL 或链接
-      });
 
-      // 清空文件选择
-      selectedFile.value = null;
   }
 };
 
