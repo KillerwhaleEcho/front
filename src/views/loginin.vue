@@ -18,7 +18,7 @@
         <div class="title">欢迎 <b>回来</b></div>
         <div class="subtitle">登录你的账户</div>
         <div class="inputf">
-          <input type="text" v-model="loginId" placeholder="账号" />
+          <input type="text" v-model="loginuserName" placeholder="账号" />
           <span class="label">帐号</span>
         </div>
         <div class="inputf">
@@ -37,10 +37,10 @@
           <input type="text" v-model="inputUsername" placeholder="用户名" />
           <span class="label">用户名</span>
         </div>
-        <div class="inputf">
+        <!-- <div class="inputf">
           <input type="text" v-model="inputId" placeholder="账号" />
           <span class="label">帐号</span>
-        </div>
+        </div> -->
         <div class="inputf">
           <input type="password" v-model="inputPassword" placeholder="密码" />
           <span class="label">密码</span>
@@ -74,9 +74,9 @@ const router = useRouter();
 // 状态管理
 const active = ref(1); // 控制表单的切换
 const inputUsername = ref(""); // 用户名
-const inputId = ref(null); // 账号
+const inputId = ref(null); // 用户id
 const inputPassword = ref(""); // 密码
-const loginId = ref(null); // 登录账号
+const loginuserName = ref(null); // 登录用户名
 const loginPassword = ref(""); // 登录密码
 
 // 控制登录和注册的成功/失败提示
@@ -100,9 +100,9 @@ const showMessage = (text, type) => {
 // 注册请求
 const register = async () => {
   try {
-    const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/register', {
-      username: inputUsername.value,
-      userId: inputId.value,
+    const response = await axios.post('http://localhost:8084/api/users/register', {
+      loginusername: inputUsername.value,
+      //userId: inputId.value,
       password: inputPassword.value,
     });
     console.log('注册成功:', response.data);
@@ -122,21 +122,23 @@ const register = async () => {
 // 登录请求
 const login = async () => {
   try {
-    const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/login', {
-      userId: loginId.value,
+    const response = await axios.post('http://localhost:8084/api/users/login', {
+      username: loginuserName.value,
       password: loginPassword.value,
     });
     console.log('登录成功:', response.data);
     showMessage("登录成功", "success");
-    localStorage.setItem('token', response.data.token);
-    localStorage.setItem('currentUserId', loginId.value);
-    console.log("登录id：",loginId.value);
-    loginId.value = "";
+    localStorage.setItem('token', response.data.data);
+    console.log("token", response.data.data);
+    //localStorage.setItem('currentUserId', loginuserName.value);
+    console.log("登录用户名：",loginuserName.value);
+    loginuserName.value = "";
     loginPassword.value = "";
     router.push('/home');
+
   } 
   catch (error) {
-    console.log('登录失败');
+    console.log('登录失败:', error.response ? error.response.data : error.message);
     showMessage("登录失败", "error");
   }
 };

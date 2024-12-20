@@ -239,13 +239,32 @@
   const currentTag = ref('');
   const token = ref('');
   const UserData=ref([]);
+  const currentRoomId = ref('');
 
 
   const defaultAvatar = "/images/ENFP-竞选者.png";
+  
 
-  const group_sug1Click = (room) => {
+  const group_sug1Click = async (room) => {
   localStorage.setItem('currentRoomId', room.roomId);
   console.log("点击推荐房间",room.roomId);
+  currentRoomId.value = room.roomId;
+  try {
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
+        // 加入房间
+        const addRoomResponse = await axios.post(`http://localhost:8084/api/rooms/join`, {
+          roomId: currentRoomId.value,
+        },{  
+        headers: {
+        'Authorization': `Bearer ${token}`
+      }
+      });
+        console.log("房间加入成功", addRoomResponse);
+    }
+    catch (error) {
+      console.error('房间加入失败', error);
+    }
   router.push('/chat' ); 
   };
 
@@ -254,26 +273,34 @@ const handleTagClick = async (tagName) => {
   currentTag.value = tagName;
   showTagRoomModal.value = true;
   try {
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
     // 向后端发送GET请求，查询包含当前点击标签的房间数据，这里的API地址需根据实际后端接口调整
-    const response = await axios.get(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomsByTag`,{
-      tagName: tagName
-    });
-    tagRoomsData.value = response.data.rooms;
+    const response = await axios.get(`http://localhost:8084/api/rooms/getRoomsByTag/${tagName}`,{ 
+        headers: {
+           'Authorization': `Bearer ${token}`
+        }
+        });
+    tagRoomsData.value = response.data.data;
     console.log("获取标签对应房间数据成功", response.data);
   } catch (error) {
     console.error('获取标签对应房间数据失败', error);
   }
 };
 const startchattingRoom = async (user) =>{
+  console.log("私聊对象id", user.id);
   try {
-      const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/createRoom', {
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
+      const response = await axios.post('http://localhost:8084/api/rooms/create', {
+        "receiverUid":user.id,
+        "roomType":"private",
+        "roomAvatar":user.userAvatar,
+      },{ 
         headers: {
            'Authorization': `Bearer ${token}`
-        },
-        "roomName":user.userName,
-        "roomType":"private",
-        "roomAvatar":user.userAvatar
-      });
+        }
+        });
       roomId.value=response.data.roomId;
       console.log('发起聊天成功', response.data);
       localStorage.setItem("currentRoomId",roomId.value);
@@ -309,17 +336,24 @@ const startchattingRoom = async (user) =>{
     if (avatar2.value) {
       formData.append('avatar', avatar2.value); // 上传头像文件
     }
+     // 将 roomTag 转换为标签数组，支持中英文逗号分隔标签
+    const tagsArray = roomTag.value.split(/[，,]/).map(tag => tag.trim()); // 去除每个标签的前后空格
+
+     console.log("tagsArray", tagsArray);
 
     try {
-      const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/createRoom', {
-        headers: {
-           'Authorization': `Bearer ${token}`
-        },
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+      const response = await axios.post('http://localhost:8084/api/rooms/create', {
         "roomName":roomName.value,
-        "roomTag":roomTag.value,
+        "tags": tagsArray,
         "roomType":roomType.value,
         "roomAvatar":avatar2.value
-      });
+      }, {  
+        headers: {
+           'Authorization': `Bearer ${token}`
+        }
+        });
       roomId.value=response.data.roomId;
       console.log('房间创建成功', response.data);
       localStorage.setItem("currentRoomId",roomId.value);
@@ -348,13 +382,15 @@ const uploadAvatar = (event) => {
 const searchTag = async () => {
   if (searchInput.value) {
     try {
-      const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomsByTag', {
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
+    // 向后端发送GET请求，查询包含当前点击标签的房间数据，这里的API地址需根据实际后端接口调整
+    const response = await axios.get(`http://localhost:8084/api/rooms/getRoomsByTag/${searchInput.value}`,{ 
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        tagName: searchInput.value
-      });
-      tagRoomsData.value=response.data.rooms;
+           'Authorization': `Bearer ${token}`
+        }
+        });
+      tagRoomsData.value=response.data.data;
       showSearchModal.value=false;
       showTagRoomModal.value=true;
     } catch (error) {
@@ -368,13 +404,14 @@ const searchTag = async () => {
 const searchRoomId = async () => {
   if (searchInput.value) {
     try {
-      const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomsByRoomId', {
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+      const response = await axios.get(`http://localhost:8084/api/rooms/getRoomsByRoomId/${searchInput.value}`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        RoomId: searchInput.value
-      });
-      tagRoomsData.value=response.data.rooms;
+           'Authorization': `Bearer ${token}`
+        }
+        });
+      tagRoomsData.value=response.data.data;
       showSearchModal.value=false;
       showTagRoomModal.value=true;
     } catch (error) {
@@ -391,12 +428,15 @@ const searchRoomId = async () => {
 const searchUserId = async () => {
   if (searchInput.value) {
     try {
-      const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getUserByUserId', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+      const response = await axios.get('http://localhost:8084/api/users/getUserByUserId', {
         UserId: searchInput.value
-      });
+      },{ 
+        headers: {
+           'Authorization': `Bearer ${token}`
+        }
+        });
       UserData.value=response.data.users;
       console.log("搜索到的用户信息为：",UserData.value);
       showSearchModal.value=false;
@@ -411,24 +451,45 @@ const searchUserId = async () => {
 // 页面加载时请求房间数据
 onMounted(async () => {
   try {
-    const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/get6rooms'); // 替换为实际的 API 地址
-    rooms.value = response.data.rooms; // 假设 API 返回的数据结构是 { rooms: [...] }、
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+      const response = await axios.get('http://localhost:8084/api/rooms/get6rooms', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }); 
+
+    rooms.value = response.data.data; // 假设 API 返回的数据结构是 { rooms: [...] }、
     console.log("六个房间加载成功",response.data);
   } catch (error) {
     console.error('获取房间数据失败', error);
   }
   try {
-    const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/tags'); // 获取标签数据
-    tags.value = response.data.tags; // 假设返回的格式是 [{ name: 'Kpop', color: '#6A5ACD' }, ...]
-    console.log("标签加载成功",response.data);
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+    const response = await axios.get('http://localhost:8084/api/rooms/tags', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+     // 获取标签数据
+    tags.value = response.data.data; // 假设返回的格式是 [{ name: 'Kpop', color: '#6A5ACD' }, ...]
+    console.log("标签加载成功",tags.value);
   } catch (error) {
     console.error('获取标签数据失败', error);
   }
 
   try {
-    const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/sugTags'); // 获取标签数据
-    sugTags.value = response.data.sugTags; // 假设返回的格式是 [{ name: 'Kpop', color: '#6A5ACD' }, ...]
-    console.log("滚动标签加载成功",response.data);
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+    const response = await axios.get('http://localhost:8084/api/rooms/sugTags', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }); 
+     // 获取标签数据
+    sugTags.value = response.data.data; // 假设返回的格式是 [{ name: 'Kpop', color: '#6A5ACD' }, ...]
+    console.log("滚动标签加载成功",response.data.data);
   } catch (error) {
     console.error('获取标签数据失败', error);
   }

@@ -38,7 +38,7 @@
             </div>
             <br>
             <div>
-              <strong>账号：</strong>
+              <strong>用户id：</strong>
               <span>{{ currentUserId }}</span>
             </div>
             <br>
@@ -121,8 +121,9 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router'; // 引入 useRouter
-const router = useRouter();
 
+
+const router = useRouter();
 const currentUserAvatar = ref('');
 const currentUserName = ref('');
 const currentUserId = ref('');
@@ -141,26 +142,31 @@ const tempAvatar =ref(null);
 onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
-    token.value = localStorage.getItem('token');
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
     // 从后端获取用户数据
-    const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/own', {
-      headers: {
+    const response = await axios.post('http://localhost:8084/api/users/own', {
+    }, {  
+        headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    currentUserAvatar.value = response.data.userAvatar;
-    currentUserName.value = response.data.userName;
+    currentUserAvatar.value = response.data.data.avatar;
+    currentUserName.value = response.data.data.username;
+    currentUserId.value = response.data.data.userid;
     console.log("own加载成功", response.data);
-    console.log("toux加载成功", response.data.userAvatar);
-    console.log("name加载成功", response.data.userName);
+    console.log("toux加载成功", response.data.data.avatar);
+    console.log("name加载成功", response.data.data.username);
     }
     catch (error) {
       console.error('获取own信息失败', error);
     }
+
 });
 
 // 处理头像上传
 const handleAvatarUpload = async (event) => {
+  
   const file = event.target.files[0];
   if (file) {
     // 先清空之前可能存在的临时头像（避免多次选择文件时出现显示异常等情况）
@@ -179,12 +185,16 @@ const handleAvatarUpload = async (event) => {
 
 const uploadAvatar = async() => {
   try {
+    //currentUserId.value = localStorage.getItem('currentUserId');
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
       // 向后端发送POST请求上传头像，这里的接口地址需替换为实际后端接口
-      const response = await axios.patch('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/upload-avatar', {
+      const response = await axios.post('http://localhost:8084/api/users/upload-avatar', {
+        avatar:tempAvatar.value
+      }, {  
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        userAvatar:tempAvatar.value
+        'Authorization': `Bearer ${token}`
+      }
       });
       if (response.status === 200) {
         currentUserAvatar.value = tempAvatar.value;
@@ -200,12 +210,15 @@ const uploadAvatar = async() => {
 const saveNewUsername = async () => {
   if (newUsername.value) {
     try {
-      // 向后端发送PUT请求修改用户名，接口地址需替换为实际后端接口
-      const response = await axios.patch('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/update-username', {
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+      // 向后端发送请求修改用户名，接口地址需替换为实际后端接口
+      const response = await axios.post('http://localhost:8084/api/users/update-username', {
+        username: newUsername.value,
+      }, {  
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        newUsername: newUsername.value,
+        'Authorization': `Bearer ${token}`
+      }
       });
       if (response.status === 200) {
         currentUserName.value = newUsername.value;
@@ -224,11 +237,12 @@ const saveNewPassword = async () => {
   if (newPassword.value && newPassword.value === confirmPassword.value) {
     try {
       // 向后端发送PUT请求修改密码，接口地址需替换为实际后端接口
-      const response = await axios.patch('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/update-password', {
+      const response = await axios.post('http://localhost:8084/api/users/update-password', {
+        password: newPassword.value,
+      }, {  
         headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        newPassword: newPassword.value,
+        'Authorization': `Bearer ${token}`
+      }
       });
       if (response.status === 200) {
         password.value = newPassword.value;
@@ -247,11 +261,12 @@ const saveNewPassword = async () => {
 
 const deleteAccount = async() => {
   try {
-    const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/deleteAccount', {
-      headers: {
+    const response = await axios.post('http://localhost:8084/api/users/deleteAccount', {
+    }, {  
+        headers: {
         'Authorization': `Bearer ${token}`
       }
-    });
+      });
     console.log("注销账号成功！",response.data);
     currentUserId.value='';
     token.value='';
@@ -270,6 +285,7 @@ const signoutAccount = async() => {
     console.error('注销账号失败', error);
   }
 }
+
 </script>
 
 

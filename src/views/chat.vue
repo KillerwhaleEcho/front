@@ -193,6 +193,7 @@ const fileInput = ref(null);
 const selectedFile = ref(null);
 const fileType = ref(0); 
 
+const tokenValue = ref(null);
 
 const searchExist=ref('');
 
@@ -200,8 +201,10 @@ onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
     console.log("获取当前用户id成功", currentUserId.value);
-    token.value = localStorage.getItem('token');
-    console.log("获取token成功", token.value);
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("获取token", token);
+    // 将 token 存储在响应式变量中，便于后续使用
+    tokenValue.value = token;
 
     // WebSocket连接地址
     const websocketUrl = `ws://your-websocket-server-url/room/${currentRoomId.value}?token=${token.value}`;
@@ -234,21 +237,23 @@ onMounted(async () => {
     };
 
     // 从后端获取房间数据
-    const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/room-choose', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    const data = response.data.rooms;
+    const response = await axios.get('http://localhost:8084/api/rooms/room-choose', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+  });
+    const data = response.data.data;
     // 将获取到的房间数据赋值给rooms响应式数据
     rooms.value = data;
-    console.log("聊天室加载成功", response.data);
+    console.log("聊天室加载成功", response.data.data);
     currentRoomId.value = localStorage.getItem("currentRoomId");
     console.log("跳转传递roomid：", currentRoomId.value);
     // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
-    if (rooms.value.length > 0 && !currentRoomId.value) {
+    if (rooms.value.length > 0 && (currentRoomId.value == null || currentRoomId.value == undefined)) {
       currentRoomId.value = rooms.value[0].roomId;
       console.log("列表第一个房间：", currentRoomId);
+      // 设置 localStorage 中的 currentRoomId，保持房间 ID 状态
+      localStorage.setItem("currentRoomId", currentRoomId.value);
     }
   }
   catch (error) {
@@ -262,12 +267,18 @@ watch(currentRoomId, async (newRoomId) => {
   if (newRoomId) {
     console.log("newroomid:",newRoomId);
     try {
+      // 使用保存的 token
+      const token = tokenValue.value; // 这里从响应式变量中获取 token
+
       // 使用房间ID获取房间信息
-      const response1 = await axios.get(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomName&Avater/${newRoomId}`);
+      const response1 = await axios.get(`http://localhost:8084/api/rooms/${newRoomId}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       console.log("更新获取房间header信息成功",response1.data);
-      roomAvater.value = response1.data.roomAvater; // 假设后端返回的数据包含avatar
-      roomName.value = response1.data.roomName; // 假设后端返回的数据包含roomName
-      roomTag.value=response1.data.roomTag;
+      roomAvater.value = response1.data.data.roomAvater; // 假设后端返回的数据包含avatar
+      roomName.value = response1.data.data.roomName; // 假设后端返回的数据包含roomName
+      roomTag.value=response1.data.data.roomTag;
+      currentRoomUsers.value = response1.data.data.members;
     } catch (error) {
       console.error('更新获取房间header信息失败', error);
     }
@@ -277,29 +288,22 @@ watch(currentRoomId, async (newRoomId) => {
     } catch (error) {
       console.error('noclick获取房间初始聊天记录失败', error);
     }
-    try {
-      const responseRoomUser = await axios.get(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomUser`);///${currentRoomId.value}
-      currentRoomUsers.value = responseRoomUser.data.users;
-      console.log("获取房间用户成功",currentRoomUsers.value);
-    } catch (error) {
-      console.error('获取房间用户失败', error);
-    }
-    try {
-      // 向后端发送请求检查房间是否存在于个人房间列表,https://fccb0fa2-e2a0-4749-8131-2c5991792be7.mock.pstmn.io/check-room-exists/${currentRoomId.value}
-      const roomExistsResponse = await axios.get(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/checkRoomExist/63192`);
-      const roomExists = roomExistsResponse.data.msg;
-      if (!roomExists) {
-        // 将房间添加到个人房间列表
-        const addRoomResponse = await axios.post(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/jion`, {
-          roomId: currentRoomId.value,
-          userId: currentUserId.value
-        });
-        console.log("addRoom success", currentRoomId);
-      }
-    }
-    catch (error) {
-      console.error('房间加入失败', error);
-    }
+    // try {
+    //   // 使用保存的 token
+    //   const token = tokenValue.value; // 这里从响应式变量中获取 token
+    //     // 加入房间
+    //     const addRoomResponse = await axios.post(`http://localhost:8084/api/rooms/join`, {
+    //       roomId: currentRoomId.value,
+    //     },{  
+    //     headers: {
+    //     'Authorization': `Bearer ${token}`
+    //   }
+    //   });
+    //     console.log("addRoom success", currentRoomId);
+    // }
+    // catch (error) {
+    //   console.error('房间加入失败', error);
+    // }
 
     if (socket.value) {
       socket.value.close(); // 关闭旧的连接
@@ -323,22 +327,27 @@ watch(currentRoomId, async (newRoomId) => {
 const searchExistRoom = async () => {
   if (searchExist.value) {
     try {
-      const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomByRoomName', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        RoomName: searchExist.value
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
+      const response = await axios.post('http://localhost:8084/api/rooms/myroom-search', {
+        "query": searchExist.value
+        }, {  
+        headers: { 'Authorization': `Bearer ${token}`}
       });
-      currentRoomId.value=response.data.roomId;
-      console.log('搜索房间名字成功', response.data.roomId);
+      console.log('搜索房间名字成功', response.data);
+         // 确保 data 是一个数组，并且存在至少一个房间
+         if (response.data && response.data.data && response.data.data.length > 0) {
+        currentRoomId.value = response.data.data[0].roomId;  // 获取第一个房间的 roomId
+        console.log('房间ID:', currentRoomId.value);
+      } else {
+        console.log('未找到相关房间');
+      }
+
     } catch (error) {
-      showMessage("搜索失败", "error");
       console.error('搜索房间名字失败', error);
     }
-    searchExist.value = '';
-  }
-  else{
     
+    searchExist.value = '';
   }
 };
 // 切换表情面板显示
@@ -416,12 +425,13 @@ const clickRoom = (room) => {
 
 const leaveRoom = async () => {
   try {
-    const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/leaveRoom', {
-      headers: {
-      'Authorization': `Bearer ${token}`
-    },
-      roomId: currentRoomId.value
-    });
+    // 使用保存的 token
+    const token = tokenValue.value; // 这里从响应式变量中获取 token
+    const response = await axios.post(`http://localhost:8084/api/rooms/${currentRoomId.value}/leave`, {}, {  
+     headers: {
+    'Authorization': `Bearer ${token}`
+      }
+      });
     currentRoomId.value=" ";
     showRoomSettingModal.value=false;
     console.log('退出房间成功:', response.data);
