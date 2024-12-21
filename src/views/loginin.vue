@@ -101,7 +101,7 @@ const showMessage = (text, type) => {
 const register = async () => {
   try {
     const response = await axios.post('http://localhost:8084/api/users/register', {
-      loginusername: inputUsername.value,
+      username: inputUsername.value,
       //userId: inputId.value,
       password: inputPassword.value,
     });
