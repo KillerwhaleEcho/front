@@ -105,13 +105,13 @@
         <div class="chat-container">
           <div v-for="msg in currentRoomMsg" :key="msg.id">
             <div
-              :class="{ 'left': msg.userId.toString() !== currentUserId, 'right': msg.userId.toString() === currentUserId }">
+              :class="{ 'left': msg.uid.toString() !== currentUserId, 'right': msg.uid.toString() === currentUserId }">
               <div class="msgThreePart">
                 <img class="msgAvater" :src="msg.userAvater" @click="manageRel(msg)">
                 <div class="nameAndBubble">
                   <div class="msgName">{{ msg.userName }}</div>
                   <div class="message-bubble">
-                    {{ msg.content }}
+                    {{ msg.content.text }}
                   </div>
                 </div>
               </div>
@@ -192,12 +192,34 @@ const showEmoji = ref(false);
 const fileInput = ref(null);
 const selectedFile = ref(null);
 const fileType = ref(0); 
-
+const currentUserName=ref('');
+const currentUserAvatar=ref('');
 const tokenValue = ref(null);
 
 const searchExist=ref('');
 
 onMounted(async () => {
+  try {
+    currentUserId.value = localStorage.getItem('currentUserId');
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
+    // 从后端获取用户数据
+    const response = await axios.post('http://localhost:8084/api/users/own', {
+    }, {  
+        headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    currentUserAvatar.value = response.data.data.avatar;
+    currentUserName.value = response.data.data.username;
+    currentUserId.value = response.data.data.userid;
+    console.log("own2加载成功", response.data);
+    console.log("toux2加载成功", response.data.data.avatar);
+    console.log("name2加载成功", response.data.data.username);
+    }
+    catch (error) {
+      console.error('获取own2信息失败', error);
+    }
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
     console.log("获取当前用户id成功", currentUserId.value);
@@ -493,8 +515,8 @@ const sendMessage = async () => {
   if (content) {
     // 构建消息对象
     const message = {
-      userId: currentUserId.value,
       roomId: currentRoomId.value,
+<<<<<<< Updated upstream
       type:"TEXT",
       content: {
 
@@ -502,8 +524,16 @@ const sendMessage = async () => {
       timestamp: new Date().toISOString(), // 当前时间戳
       userName: '用户名', // 你可以根据实际情况替换
       userAvater: '用户头像链接', // 同上
+=======
+      uid: currentUserId.value,
+      type:"TEXT",
+      content: {
+        text:content
+      },
+      userName: currentUserName.value, // 你可以根据实际情况替换
+      userAvater: currentUserAvatar.value, // 同上
+>>>>>>> Stashed changes
     };
-
     // WebSocket连接地址
     //const websocketUrl = `ws://localhost:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
 
@@ -511,7 +541,10 @@ const sendMessage = async () => {
     //socket.value = new WebSocket(websocketUrl);
 
     if (socket.readyState === WebSocket.OPEN) {   socket.value.send(JSON.stringify(message)); } else { setTimeout(() => sendMessage(message), 1000); // 1秒后重试 }
-
+    // 检查 currentRoomMsg.value 是否是数组，若不是则初始化它为一个数组
+    if (!Array.isArray(currentRoomMsg.value)) {
+      currentRoomMsg.value = [];
+    }
     // 将消息立即显示在聊天界面中
     currentRoomMsg.value.push(message);
 
