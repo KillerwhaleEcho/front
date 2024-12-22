@@ -130,7 +130,7 @@ const login = async () => {
     showMessage("登录成功", "success");
     localStorage.setItem('token', response.data.data);
     console.log("token", response.data.data);
-    localStorage.setItem('currentUserId', loginuserName.value);
+    //localStorage.setItem('currentUserId', loginuserName.value);
     console.log("登录用户名：",loginuserName.value);
     loginuserName.value = "";
     loginPassword.value = "";

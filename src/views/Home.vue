@@ -471,7 +471,8 @@ onMounted(async () => {
       }
     });
     currentUserId.value = response.data.data.userid;
-    console.log("userId获取成功", response.data);
+    localStorage.setItem('currentUserId', currentUserId.value);
+    console.log("userId获取成功", currentUserId.value);
     }
     catch (error) {
       console.error('userId获取失败', error);
