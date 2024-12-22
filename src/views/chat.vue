@@ -516,23 +516,13 @@ const sendMessage = async () => {
     // 构建消息对象
     const message = {
       roomId: currentRoomId.value,
-<<<<<<< Updated upstream
-      type:"TEXT",
-      content: {
-
-      },
-      timestamp: new Date().toISOString(), // 当前时间戳
-      userName: '用户名', // 你可以根据实际情况替换
-      userAvater: '用户头像链接', // 同上
-=======
       uid: currentUserId.value,
       type:"TEXT",
       content: {
         text:content
       },
       userName: currentUserName.value, // 你可以根据实际情况替换
-      userAvater: currentUserAvatar.value, // 同上
->>>>>>> Stashed changes
+      userAvatar: currentUserAvatar.value, // 同上
     };
     // WebSocket连接地址
     //const websocketUrl = `ws://localhost:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
