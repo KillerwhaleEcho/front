@@ -32,9 +32,9 @@
         <div class="modal-content2">
           <h3>全部标签</h3>
           <div class="tags-container">
-            <button class="tag-btn" v-for="(tag, index) in tags" :key="index" :style="{ backgroundColor: tag.color }"
-              @click="handleTagClick(tag.tagname)">
-              {{ tag.tagname }}
+            <button class="tag-btn" v-for="(tag, index) in tags" :key="index" :style="{ backgroundColor: getRandomColor() }"
+              @click="handleTagClick(tag)">
+              {{ tag }}
             </button>
           </div>
           <button class="modal-close" @click="showTagModal = false">关闭</button>
@@ -143,29 +143,29 @@
             <div class="top-container1">
               <!-- 根据后台标签数实时查询，将房间数最多的10个标签，设置为按钮 -->
               <!-- 10个大小不一的彩色按钮 -->
-              <button class="random-btn" style="top: 20px; left: 230px"></button>
-              <button class="random-btn" style="top: 50px; left: 750px"></button>
-              <button class="random-btn" style="top: 100px; left: 380px"></button>
-              <button class="random-btn" style="top: 120px; left: 1100px"></button>
-              <button class="random-btn" style="top: 170px; left: 500px"></button>
-              <button class="random-btn" style="top: 280px; left: 800px"></button>
-              <button class="random-btn" style="top: 240px; left: 150px"></button>
-              <button class="random-btn" style="top: 150px; left: 750px"></button>
-              <button class="random-btn" style="top: 480px; left: 780px"></button>
-              <button class="random-btn" style="top: 80px; left: 600"></button>
+              <button class="random-btn" style="top: 20px; left: 230px; background-color:red;"></button>
+              <button class="random-btn" style="top: 50px; left: 750px; background-color:#E4080A" ></button>
+              <button class="random-btn" style="top: 100px; left: 380px;  background-color:#FFDE59"></button>
+              <button class="random-btn" style="top: 120px; left: 1100px;  background-color:#CC6CE7"></button>
+              <button class="random-btn" style="top: 170px; left: 500px;  background-color:royalblue"></button>
+              <button class="random-btn" style="top: 280px; left: 800px;  background-color:greenyellow"></button>
+              <button class="random-btn" style="top: 240px; left: 150px;  background-color:hotpink"></button>
+              <button class="random-btn" style="top: 150px; left: 750px;  background-color:paleturquoise"></button>
+              <button class="random-btn" style="top: 480px; left: 780px;  background-color:salmon"></button>
+              <button class="random-btn" style="top: 80px; left: 600;  background-color:cadetblue"></button>
             </div>
             <div class="top-container2">
               <!-- 复制按钮，使得循环更加无缝 -->
-              <button class="random-btn" style="top: 20px; left: 230px"></button>
-              <button class="random-btn" style="top: 50px; left: 950px"></button>
-              <button class="random-btn" style="top: 100px; left: 380px"></button>
-              <button class="random-btn" style="top: 220px; left: 1100px"></button>
-              <button class="random-btn" style="top: 170px; left: 500px"></button>
-              <button class="random-btn" style="top: 280px; left: 300px"></button>
-              <button class="random-btn" style="top: 440px; left: 650px"></button>
-              <button class="random-btn" style="top: 150px; left: 750px"></button>
-              <button class="random-btn" style="top: 480px; left: 780px"></button>
-              <button class="random-btn" style="top: 80px; left: 600"></button>
+              <button class="random-btn" style="top: 20px; left: 230px;  background-color:#E4080A; background-color:red;"></button>
+              <button class="random-btn" style="top: 50px; left: 950px;  background-color:#E4080A; background-color:#E4080A;"></button>
+              <button class="random-btn" style="top: 100px; left: 380px;  background-color:#E4080A; background-color:#FFDE59;"></button>
+              <button class="random-btn" style="top: 220px; left: 1100px;  background-color:#E4080A; background-color:#CC6CE7;"></button>
+              <button class="random-btn" style="top: 170px; left: 500px;  background-color:#E4080A; background-color:royalblue;"></button>
+              <button class="random-btn" style="top: 280px; left: 300px;  background-color:#E4080A; background-color:greenyellow;"></button>
+              <button class="random-btn" style="top: 440px; left: 650px;  background-color:#E4080A; background-color:hotpink;"></button>
+              <button class="random-btn" style="top: 150px; left: 750px;  background-color:#E4080A; background-color:paleturquoise;"></button>
+              <button class="random-btn" style="top: 480px; left: 780px;  background-color:#E4080A; background-color:salmon;"></button>
+              <button class="random-btn" style="top: 80px; left: 600;  background-color:#E4080A; background-color:cadetblue;"></button>
             </div>
           </div>
         </div>
@@ -311,6 +311,15 @@ const startchattingRoom = async (user) =>{
     }
 }
 
+// 随机生成颜色的方法
+const getRandomColor=()=> {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
 
   // 关闭弹窗
   const closeModal = () => {
@@ -500,8 +509,7 @@ onMounted(async () => {
   sugTags.value.forEach((sugTag, index) => {
     if (index < randomBtns.length) {
       const btn = randomBtns[index];
-      btn.textContent = sugTag.tagname;
-      btn.style.backgroundColor = sugTag.color;
+      btn.textContent = sugTag.tag;
 
       // 为每个按钮添加点击事件监听器
       btn.addEventListener('click', () => {
