@@ -198,6 +198,7 @@ const uploadAvatar = async() => {
       });
       if (response.status === 200) {
         currentUserAvatar.value = tempAvatar.value;
+        console.log(response.data);
         console.log('头像上传成功');
         showEditAvatarModal.value = false;
       }
@@ -209,11 +210,13 @@ const uploadAvatar = async() => {
 // 保存新用户名
 const saveNewUsername = async () => {
   if (newUsername.value) {
+    console.log("尝试保存的用户名:", newUsername.value);
+
     try {
       const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
       console.log("token", token);
       // 向后端发送请求修改用户名，接口地址需替换为实际后端接口
-      const response = await axios.post('http://localhost:8084/api/users/update-username', {
+      const response = await axios.post('http://localhost:8084/api/users/upload-username', {
         username: newUsername.value,
       }, {  
         headers: {
@@ -222,8 +225,11 @@ const saveNewUsername = async () => {
       });
       if (response.status === 200) {
         currentUserName.value = newUsername.value;
+        console.log("name", currentUserName.value);
+        console.log(response.data);
         console.log('用户名修改成功');
         showEditUsernameModal.value = false;
+        router.push('/');
       }
     } catch (error) {
       console.error('用户名修改失败', error);
@@ -236,6 +242,8 @@ const saveNewUsername = async () => {
 const saveNewPassword = async () => {
   if (newPassword.value && newPassword.value === confirmPassword.value) {
     try {
+      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      console.log("token", token);
       // 向后端发送PUT请求修改密码，接口地址需替换为实际后端接口
       const response = await axios.post('http://localhost:8084/api/users/update-password', {
         password: newPassword.value,
@@ -246,6 +254,7 @@ const saveNewPassword = async () => {
       });
       if (response.status === 200) {
         password.value = newPassword.value;
+        console.log(response.data);
         console.log('密码修改成功',password.value);
         showEditPasswordModal.value = false;
       }
@@ -261,6 +270,8 @@ const saveNewPassword = async () => {
 
 const deleteAccount = async() => {
   try {
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/deleteAccount', {
     }, {  
         headers: {
@@ -282,7 +293,7 @@ const signoutAccount = async() => {
     console.log("退出账号成功！");
     router.push('/');
   } catch (error) {
-    console.error('注销账号失败', error);
+    console.error('退出账号失败', error);
   }
 }
 
