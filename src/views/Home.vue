@@ -531,7 +531,7 @@ onMounted(async () => {
 
       // 为每个按钮添加点击事件监听器
       btn.addEventListener('click', () => {
-        handleTagClick(sugTag.tagname);
+        handleTagClick(sugTag.tag);
       });
     }
   });

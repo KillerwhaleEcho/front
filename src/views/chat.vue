@@ -495,7 +495,10 @@ const sendMessage = async () => {
     const message = {
       userId: currentUserId.value,
       roomId: currentRoomId.value,
-      content: content,
+      type:"TEXT",
+      content: {
+
+      },
       timestamp: new Date().toISOString(), // 当前时间戳
       userName: '用户名', // 你可以根据实际情况替换
       userAvater: '用户头像链接', // 同上
