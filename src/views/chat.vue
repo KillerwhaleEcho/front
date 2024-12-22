@@ -207,7 +207,7 @@ onMounted(async () => {
     tokenValue.value = token;
 
     // WebSocket连接地址
-    const websocketUrl = `ws://your-websocket-server-url/room/${currentRoomId.value}?token=${token.value}`;
+    const websocketUrl = `ws://localhost:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
 
     // 创建 WebSocket 连接
     socket.value = new WebSocket(websocketUrl);
@@ -310,7 +310,7 @@ watch(currentRoomId, async (newRoomId) => {
     }
 
     // 重新建立 WebSocket 连接
-    const websocketUrl = `ws://your-websocket-server-url/room/${newRoomId}?token=${token.value}`;
+    const websocketUrl = `ws://localhost:8084/ws/chat/${newRoomId}/${currentUserId.value}`;
     socket.value = new WebSocket(websocketUrl);
 
     socket.value.onopen = () => {

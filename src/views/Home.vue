@@ -354,9 +354,10 @@ const startchattingRoom = async (user) =>{
            'Authorization': `Bearer ${token}`
         }
         });
-      roomId.value=response.data.roomId;
+      roomId.value=response.data.data.roomId;
       console.log('房间创建成功', response.data);
       localStorage.setItem("currentRoomId",roomId.value);
+      console.log('成功', currentRoomId);
       router.push('/chat');
       showModal.value = false; // 关闭弹窗
       resetForm();
