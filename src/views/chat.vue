@@ -45,11 +45,8 @@
       <!-- 用户管理弹窗 -->
       <div v-if="showfriendIonfoModal" class="modal-overlay666">
         <div class="modal-content666">
-          <!-- 用户头像 -->
           <img :src="friendAvatar" alt="用户头像" class="friendAvatar">
-          <!--用户名 -->
           <div class="friendName">{{ friendName }}</div>
-          <!-- 房间标签 -->
           <div class="friendName">{{ friendId }}</div>
           <div class="button-area">
             <button class="friend-btn1" @click="startchattingRoom2">发起聊天</button>
@@ -95,8 +92,8 @@
         <!-- 上侧信息展示 -->
         <div class="chat-info">
           <div class="room-header">
-            <img :src="roomAvater" alt="Room Avater" class="room-avatar" />
-            <div class="room-name">{{ roomName }}</div>
+            <img :src="roomType === 'public' ? roomAvater : otherUserAvatar"  alt="Room Avater" class="room-avatar" />
+            <div class="room-name">{{ roomType === 'public' ? roomName : otherUserName }}</div>
             <img :src="'public/images/再加三个点(More Three Dots)_爱给网_aigei_com.png'" class="settingimg"
               @click="showRoomSettingModal = true">
           </div>
@@ -105,7 +102,7 @@
         <div class="chat-container">
           <div v-for="msg in currentRoomMsg" :key="msg.id">
             <div
-              :class="{ 'left': msg.uid.toString() !== currentUserId, 'right': msg.uid.toString() === currentUserId }">
+              :class="{ 'left': msg.uid !== currentUserId, 'right': msg.uid === currentUserId }">
               <div class="msgThreePart">
                 <img class="msgAvater" :src="msg.userAvater" @click="manageRel(msg)">
                 <div class="nameAndBubble">
@@ -182,7 +179,10 @@ const roomAvater = ref(null);  // 存储房间头像
 const roomName = ref(null);  // 存储房间名字
 const currentRoomMsg = ref([]);
 const currentRoomUsers = ref([]);
+const currentUserName=ref('');
+const currentUserAvatar=ref('');
 const roomTag = ref(null);
+const roomType=ref('');
 const showRoomSettingModal=ref(false);
 const showfriendIonfoModal = ref(false);
 const friendId=ref('');
@@ -192,10 +192,9 @@ const showEmoji = ref(false);
 const fileInput = ref(null);
 const selectedFile = ref(null);
 const fileType = ref(0); 
-const currentUserName=ref('');
-const currentUserAvatar=ref('');
 const tokenValue = ref(null);
-
+const priRoomAvatar=ref('');
+const priRoomName=ref('');
 const searchExist=ref('');
 
 onMounted(async () => {
@@ -214,8 +213,8 @@ onMounted(async () => {
     currentUserName.value = response.data.data.username;
     currentUserId.value = response.data.data.userid;
     console.log("own2加载成功", response.data);
-    console.log("toux2加载成功", response.data.data.avatar);
-    console.log("name2加载成功", response.data.data.username);
+    console.log("toux2加载成功", currentUserAvatar.value);
+    console.log("name2加载成功", currentUserName.value);
     }
     catch (error) {
       console.error('获取own2信息失败', error);
@@ -236,7 +235,7 @@ onMounted(async () => {
 
     // WebSocket 连接打开时
     socket.value.onopen = () => {
-      console.log('WebSocket连接已打开');
+      console.log('WebSocket连接已打开999');
     };
 
     // WebSocket 接收到消息时
@@ -296,11 +295,17 @@ watch(currentRoomId, async (newRoomId) => {
       const response1 = await axios.get(`http://localhost:8084/api/rooms/${newRoomId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if(response1.data.data.roomType === 'public'){
+        roomAvater.value = response1.data.data.roomAvater; // 假设后端返回的数据包含avatar
+        roomName.value = response1.data.data.roomName; // 假设后端返回的数据包含roomName
+        roomTag.value=response1.data.data.roomTag;
+        currentRoomUsers.value = response1.data.data.members;
+      }
+      if(response1.data.data.roomType === 'private'){
+
+      }
       console.log("更新获取房间header信息成功",response1.data);
-      roomAvater.value = response1.data.data.roomAvater; // 假设后端返回的数据包含avatar
-      roomName.value = response1.data.data.roomName; // 假设后端返回的数据包含roomName
-      roomTag.value=response1.data.data.roomTag;
-      currentRoomUsers.value = response1.data.data.members;
+      
     } catch (error) {
       console.error('更新获取房间header信息失败', error);
     }
@@ -341,7 +346,7 @@ watch(currentRoomId, async (newRoomId) => {
     socket.value = new WebSocket(websocketUrl);
 
     socket.value.onopen = () => {
-      console.log('WebSocket连接已打开');
+      console.log('WebSocket连接已打开888');
     };
 
     socket.value.onmessage = (event) => {
@@ -482,9 +487,9 @@ const startchattingRoom2 = async () =>{
            'Authorization': `Bearer ${token}`
         },
         "roomId":roomId.value,
-        "roomName":friendName.value,
+        "roomName":" ",
         "roomType":"private",
-        "roomAvatar":friendAvatar.value
+        "roomAvatar":" "
       });
       console.log('发起聊天成功', response.data);
       localStorage.setItem("currentRoomId",roomId.value);
@@ -515,8 +520,8 @@ const sendMessage = async () => {
   if (content) {
     // 构建消息对象
     const message = {
-      roomId: currentRoomId.value,
       uid: currentUserId.value,
+      roomId: currentRoomId.value,
       type:"TEXT",
       content: {
         text:content
@@ -524,25 +529,33 @@ const sendMessage = async () => {
       userName: currentUserName.value, // 你可以根据实际情况替换
       userAvatar: currentUserAvatar.value, // 同上
     };
+
     // WebSocket连接地址
     //const websocketUrl = `ws://localhost:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
 
     // 创建 WebSocket 连接
     //socket.value = new WebSocket(websocketUrl);
 
-    if (socket.readyState === WebSocket.OPEN) {   socket.value.send(JSON.stringify(message)); } else { setTimeout(() => sendMessage(message), 1000); // 1秒后重试 }
+    if (socket.value && socket.value.readyState === WebSocket.OPEN) {   
+      socket.value.send(JSON.stringify(message)); 
+      console.log("向websocket发送消息成功",JSON.stringify(message));
+    } else { 
+      console.log("向websocket发送消息失败",JSON.stringify(message));
+      setTimeout(() => sendMessage(message), 1000); // 1秒后重试 
+    }
+
     // 检查 currentRoomMsg.value 是否是数组，若不是则初始化它为一个数组
     if (!Array.isArray(currentRoomMsg.value)) {
       currentRoomMsg.value = [];
     }
     // 将消息立即显示在聊天界面中
-    currentRoomMsg.value.push(message);
+     currentRoomMsg.value.push(message);
 
     // 清空输入框
     document.querySelector('.chat-input').value = '';
   }
 };
-}
+//}
 
 </script>
 
