@@ -240,7 +240,7 @@
   const token = ref('');
   const UserData=ref([]);
   const currentRoomId = ref('');
-
+  const currentUserId = ref('');
 
   const defaultAvatar = "/images/ENFP-竞选者.png";
   
@@ -460,6 +460,22 @@ const searchUserId = async () => {
 
 // 页面加载时请求房间数据
 onMounted(async () => {
+  try {
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
+    // 从后端获取用户数据
+    const response = await axios.post('http://localhost:8084/api/users/own', {
+    }, {  
+        headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    currentUserId.value = response.data.data.userid;
+    console.log("userId获取成功", response.data);
+    }
+    catch (error) {
+      console.error('userId获取失败', error);
+    }
   try {
       const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
       console.log("token", token);

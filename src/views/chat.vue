@@ -249,7 +249,7 @@ onMounted(async () => {
     currentRoomId.value = localStorage.getItem("currentRoomId");
     console.log("跳转传递roomid：", currentRoomId.value);
     // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
-    if (rooms.value.length > 0 && (currentRoomId.value == null || currentRoomId.value == undefined)) {
+    if (rooms.value.length > 0 && (currentRoomId.value == null || currentRoomId.value == 'undefined')) {
       currentRoomId.value = rooms.value[0].roomId;
       console.log("列表第一个房间：", currentRoomId);
       // 设置 localStorage 中的 currentRoomId，保持房间 ID 状态
@@ -283,8 +283,13 @@ watch(currentRoomId, async (newRoomId) => {
       console.error('更新获取房间header信息失败', error);
     }
     try {
-      const responseMsg = await axios.get(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getRoomMsg`);///${currentRoomId.value}
-      currentRoomMsg.value = responseMsg.data.msg;
+      // 使用保存的 token
+      const token = tokenValue.value; // 这里从响应式变量中获取 token
+      const responseMsg = await axios.get(`http://localhost:8084/api/messages/sync?roomId=${currentRoomId.value}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      currentRoomMsg.value = responseMsg.data;
     } catch (error) {
       console.error('noclick获取房间初始聊天记录失败', error);
     }
