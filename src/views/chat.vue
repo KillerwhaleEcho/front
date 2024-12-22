@@ -501,8 +501,13 @@ const sendMessage = async () => {
       userAvater: '用户头像链接', // 同上
     };
 
-    // 通过 WebSocket 发送消息
-    socket.value.send(JSON.stringify(message));
+    // WebSocket连接地址
+    //const websocketUrl = `ws://localhost:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
+
+    // 创建 WebSocket 连接
+    //socket.value = new WebSocket(websocketUrl);
+
+    if (socket.readyState === WebSocket.OPEN) {   socket.value.send(JSON.stringify(message)); } else { setTimeout(() => sendMessage(message), 1000); // 1秒后重试 }
 
     // 将消息立即显示在聊天界面中
     currentRoomMsg.value.push(message);
@@ -511,6 +516,7 @@ const sendMessage = async () => {
     document.querySelector('.chat-input').value = '';
   }
 };
+}
 
 </script>
 
