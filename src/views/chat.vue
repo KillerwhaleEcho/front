@@ -68,7 +68,7 @@
             <div class="roomwindow">
               <!-- 房间头像 -->
               <div class="roomAvater2">
-                <img :src="room.roomAvater" alt="房间头像" class="room-avatar2">
+                <img :src="room.roomAvatar" alt="房间头像" class="room-avatar2">
               </div>
               <div class="expAvater">
                 <div class="expNewmsg">
@@ -92,7 +92,7 @@
         <!-- 上侧信息展示 -->
         <div class="chat-info">
           <div class="room-header">
-            <img :src="roomAvater"  alt="Room Avater" class="room-avatar" />
+            <img :src="roomAvatar"  alt="Room Avater" class="room-avatar" />
             <div class="room-name">{{roomName}}</div>
             <img :src="'public/images/再加三个点(More Three Dots)_爱给网_aigei_com.png'" class="settingimg"
               @click="showRoomSettingModal=true">
@@ -104,7 +104,7 @@
             <div
               :class="{ 'left': msg.userName !== currentUserName, 'right': msg.userName === currentUserName}">
               <div class="msgThreePart">
-                <img class="msgAvater" :src="msg.userAvater" @click="manageRel(msg)">
+                <img class="msgAvater" :src="msg.userAvatar" @click="manageRel(msg)">
                 <div class="nameAndBubble">
                   <div class="msgName">{{ msg.userName }}</div>
                   <div class="message-bubble">
