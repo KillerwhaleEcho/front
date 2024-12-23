@@ -61,7 +61,7 @@
               <img v-if="tempAvatar" :src="tempAvatar" alt="头像" class="avatar999">
               <img v-else :src="currentUserAvatar" alt="头像" class="avatar999">
             </div>
-            <input type="file" @change="handleAvatarUpload" />
+            <button class="btn" @click="showPictureModal=true">选择头像</button>
             <!-- 按钮 -->
             <div class="modal-buttons999">
               <button class="edit-avatar" @click="uploadAvatar">确认</button>
@@ -111,6 +111,19 @@
             </div>
           </div>
         </div> 
+        <!-- 图片选择弹窗 -->
+      <div v-if="showPictureModal" class="modal-overlay4">
+        <div class="modal-content4">
+          <h3>选择头像</h3>
+          <div class="picture-container">
+            <div class="picture-choose" v-for="(pic, index) in Avatar" :key="index">
+              <!-- 用户头像 -->
+              <img :src="pic" alt="用户头像" class="avatarchoose" @click="chooseAvatar(pic)">
+            </div>
+          </div>
+          <button class="modal-close" @click="showPictureModal = false">关闭</button>
+        </div>
+      </div>
       </div>
     </div>
   </div>
@@ -133,11 +146,31 @@ const showEditUsernameModal = ref(false);
 const showEditPasswordModal = ref(false);
 const showdeleteModal = ref(false);
 const showsignoutModal = ref(false);
+const showPictureModal=ref(false);
 const newUsername = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 const token=ref(null);
 const tempAvatar =ref(null);
+const defaultAvatar = "/images/ENFP-竞选者.png";
+const Avatar = [
+  "/images/ENFJ-执政官.png",
+  "/images/ENFJ-主人公.png",
+  "/images/ENFP-竞选者.png",
+  "/images/ENTJ-指挥官.png",
+  "/images/ENTP-辩论家.png",
+  "/images/ESFP-表演者.png",
+  "/images/ESTJ-总经理.png",
+  "/images/ESTP-企业家.png",
+  "/images/INFJ-提倡者.png",
+  "/images/INFP-调停者.png",
+  "/images/INTJ-建筑师.png",
+  "/images/INTP-逻辑学家.png",
+  "/images/ISFJ-守卫者.png",
+  "/images/ISFP-探险家.png",
+  "/images/ISTJ-物流师.png",
+  "/images/ISTP-鉴赏家.png"
+]
 
 onMounted(async () => {
   try {
@@ -151,7 +184,12 @@ onMounted(async () => {
         'Authorization': `Bearer ${token}`
       }
     });
-    currentUserAvatar.value = response.data.data.avatar;
+    if(response.data.data.avatar==null){
+      currentUserAvatar.value =defaultAvatar;
+      console.log("加载默认头像",defaultAvatar);
+    }else{
+      currentUserAvatar.value = response.data.data.avatar;
+    }
     currentUserName.value = response.data.data.username;
     currentUserId.value = response.data.data.userid;
     console.log("own加载成功", response.data);
@@ -164,24 +202,10 @@ onMounted(async () => {
 
 });
 
-// 处理头像上传
-const handleAvatarUpload = async (event) => {
-  
-  const file = event.target.files[0];
-  if (file) {
-    // 先清空之前可能存在的临时头像（避免多次选择文件时出现显示异常等情况）
-    if (tempAvatar.value) {
-      URL.revokeObjectURL(tempAvatar.value);
-    }
-    tempAvatar.value = URL.createObjectURL(file);
-  } else {
-    // 如果用户取消了文件选择，清空临时头像
-    if (tempAvatar.value) {
-      URL.revokeObjectURL(tempAvatar.value);
-      tempAvatar.value = null;
-    }
-  }
-};
+const chooseAvatar=async(pic)=>{
+  showPictureModal.value=false;
+  tempAvatar.value=pic;
+}
 
 const uploadAvatar = async() => {
   try {
@@ -201,6 +225,7 @@ const uploadAvatar = async() => {
         console.log(response.data);
         console.log('头像上传成功');
         showEditAvatarModal.value = false;
+        tempAvatar.value="";
       }
     } catch (error) {
       console.error('头像上传失败', error);
@@ -444,7 +469,6 @@ const signoutAccount = async() => {
 }
 
 .avatar {
-  background-color: #87aca2;
   width: 100px;
   height: 100px;
   border-radius: 50%;
@@ -543,5 +567,52 @@ const signoutAccount = async() => {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+.modal-overlay4 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+/* 弹窗内容 */
+.modal-content4 {
+  background-color: white;
+  color: #87aca2;
+  padding: 20px;
+  border-radius: 8px;
+  width: 800px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.picture-container {
+  height: 450px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  overflow-y: auto;
+}
+.picture-choose{
+  display: flex;
+  flex-direction: column;
+  width: 130px;
+  height: 130px;
+  gap:10px;
+  background-color: #f2f2f2;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  &:hover{
+    background-color: #d5d5d5;
+  }
+
+  .avatarchoose{
+    width: 80%;
+  }
 }
 </style>

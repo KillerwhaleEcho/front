@@ -43,7 +43,7 @@
       </div>
 
       <!-- 用户管理弹窗 -->
-      <div v-if="showfriendIonfoModal" class="modal-overlay666">
+      <div v-if="showfriendInfoModal" class="modal-overlay666">
         <div class="modal-content666">
           <img :src="friendAvatar" alt="用户头像" class="friendAvatar">
           <div class="friendName">{{ friendName }}</div>
@@ -51,7 +51,7 @@
           <div class="button-area">
             <button class="friend-btn1" @click="startchattingRoom2">发起聊天</button>
             <button class="friend-btn2" @click="addBlacklist">加入黑名单</button>
-            <button class="friend-btn3" @click="showfriendIonfoModal = false">关闭</button>
+            <button class="friend-btn3" @click="showfriendInfoModal = false">关闭</button>
           </div>
         </div>
       </div>
@@ -92,17 +92,16 @@
         <!-- 上侧信息展示 -->
         <div class="chat-info">
           <div class="room-header">
-            <img :src="roomType === 'public' ? roomAvater : otherUserAvatar"  alt="Room Avater" class="room-avatar" />
-            <div class="room-name">{{ roomType === 'public' ? roomName : otherUserName }}</div>
+            <img :src="roomAvatar" alt="Room Avater" class="room-avatar" />
+            <div class="room-name">{{roomName}}</div>
             <img :src="'public/images/再加三个点(More Three Dots)_爱给网_aigei_com.png'" class="settingimg"
-              @click="showRoomSettingModal = true">
+              @click="showRoomSettingModal=true">
           </div>
         </div>
         <!-- 聊天内容区域 -->
         <div class="chat-container">
           <div v-for="msg in currentRoomMsg" :key="msg.id">
-            <div
-              :class="{ 'left': msg.uid !== currentUserId, 'right': msg.uid === currentUserId }">
+            <div :class="{ 'left': msg.uid !== currentUserId, 'right': msg.uid === currentUserId }">
               <div class="msgThreePart">
                 <img class="msgAvater" :src="msg.userAvater" @click="manageRel(msg)">
                 <div class="nameAndBubble">
@@ -121,33 +120,19 @@
           <!-- 功能按钮区 -->
           <div class="func-logo">
 
-                <!-- 点击文件按钮，触发文件选择 -->
-                <div class="file" @click="triggerFileInput">文件</div>
+            <!-- 点击文件按钮，触发文件选择 -->
+            <!-- <div class="file" @click="triggerFileInput">文件</div> -->
 
-               <!-- 文件选择输入框，默认隐藏 -->
-                <input
-                 type="file"
-                 id="docFile"
-                 ref="fileInput"
-                 @change="sendFile"
-                 accept="application/*,text/*,image/*"
-                 style="display: none;"
-                 
-                />
+            <!-- 文件选择输入框，默认隐藏 -->
+            <!-- <input type="file" id="docFile" ref="fileInput" @change="sendFile" accept="application/*,text/*,image/*"
+              style="display: none;" /> -->
 
-             <!-- 点击表情按钮，切换表情面板显示与隐藏 -->
-             <div class="emoji" @click="clickEmoji">表情</div>
-
-                <!-- 表情面板 -->
-                <div class="emoji-content">
-                 <Emoji
-                   v-show="showEmoji"
-                   @sendEmoji="sendEmoji"  
-                   @closeEmoji="clickEmoji"  
-                ></Emoji>
-                </div>
-            <!-- <div class="call">通话</div> -->
-            <div class="voice">语音</div>
+            <!-- 点击表情按钮，切换表情面板显示与隐藏 -->
+            <img src="/images/emoji/slightly-smiling-face.png" class="emoji" @click="clickEmoji">
+            <!-- 表情面板 -->
+            <div class="emoji-content">
+              <Emoji v-show="showEmoji" @sendEmoji="sendEmoji" @closeEmoji="clickEmoji"></Emoji>
+            </div>
           </div>
 
           <!-- 消息发送区 -->
@@ -175,7 +160,7 @@ const rooms = ref([]);
 // 定义响应式数据currentRoomId，初始值先设为null，后续在onMounted中根据情况赋值
 const currentRoomId = ref(null);
 const token = ref(null);
-const roomAvater = ref(null);  // 存储房间头像
+const roomAvatar = ref(null);  // 存储房间头像
 const roomName = ref(null);  // 存储房间名字
 const currentRoomMsg = ref([]);
 const currentRoomUsers = ref([]);
@@ -184,18 +169,17 @@ const currentUserAvatar=ref('');
 const roomTag = ref(null);
 const roomType=ref('');
 const showRoomSettingModal=ref(false);
-const showfriendIonfoModal = ref(false);
+const showfriendInfoModal = ref(false);
 const friendId=ref('');
 const friendAvatar=ref('');
 const friendName=ref('');
 const showEmoji = ref(false);
-const fileInput = ref(null);
-const selectedFile = ref(null);
-const fileType = ref(0); 
+// const fileInput = ref(null);
+// const selectedFile = ref(null);
+// const fileType = ref(0); 
 const tokenValue = ref(null);
-const priRoomAvatar=ref('');
-const priRoomName=ref('');
 const searchExist=ref('');
+const defaultAvatar = "/images/ENFP-竞选者.png";
 
 onMounted(async () => {
   try {
@@ -209,7 +193,12 @@ onMounted(async () => {
         'Authorization': `Bearer ${token}`
       }
     });
-    currentUserAvatar.value = response.data.data.avatar;
+    if(response.data.data.avatar==null){
+      currentUserAvatar.value =defaultAvatar;
+      console.log("加载默认头像",defaultAvatar);
+    }else{
+      currentUserAvatar.value = response.data.data.avatar;
+    }
     currentUserName.value = response.data.data.username;
     currentUserId.value = response.data.data.userid;
     console.log("own2加载成功", response.data);
@@ -240,11 +229,16 @@ onMounted(async () => {
 
     // WebSocket 接收到消息时
     socket.value.onmessage = (event) => {
-      const message = JSON.parse(event.data); // 假设消息为 JSON 格式
-      console.log('收到消息:', message);
-
-      // 将收到的消息添加到当前房间的聊天记录中
+    console.log('接收到的原始消息:', event.data);
+    try {
+      const message = JSON.parse(event.data);
+      console.log('解析后的消息:', message);
       currentRoomMsg.value.push(message);
+      // 继续处理消息
+      } catch (error) {
+        console.error('JSON 解析失败:', error);
+        console.error('接收到的原始消息:', event.data);
+      }
     };
 
     // WebSocket 连接出错时
@@ -288,54 +282,54 @@ watch(currentRoomId, async (newRoomId) => {
   if (newRoomId) {
     console.log("newroomid:",newRoomId);
     try {
-      // 使用保存的 token
-      const token = tokenValue.value; // 这里从响应式变量中获取 token
+    // 使用保存的 token
+    const token = tokenValue.value; // 这里从响应式变量中获取 token
 
-      // 使用房间ID获取房间信息
-      const response1 = await axios.get(`http://localhost:8084/api/rooms/${newRoomId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if(response1.data.data.roomType === 'public'){
-        roomAvater.value = response1.data.data.roomAvater; // 假设后端返回的数据包含avatar
-        roomName.value = response1.data.data.roomName; // 假设后端返回的数据包含roomName
-        roomTag.value=response1.data.data.roomTag;
-        currentRoomUsers.value = response1.data.data.members;
-      }
-      if(response1.data.data.roomType === 'private'){
+    // 使用房间ID获取房间信息
+    const response1 = await axios.get(`http://localhost:8084/api/rooms/${newRoomId}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-      }
-      console.log("更新获取房间header信息成功",response1.data);
-      
-    } catch (error) {
-      console.error('更新获取房间header信息失败', error);
+    const roomData = response1.data.data;
+
+    if (roomData.roomType === 'public') {
+      // 公共房间
+      // roomAvater.value = roomData.roomAvater; // 假设后端返回的数据包含avatar
+      // roomName.value = roomData.roomName; // 假设后端返回的数据包含roomName
+      // roomTag.value = roomData.roomTag;
+      // currentRoomUsers.value = roomData.members;
+      roomAvatar.value =response1.data.data.roomAvatar;
+      roomName.value=response1.data.data.roomName;
     }
+
+    if (roomData.roomType === 'private') {
+      // 私密房间：找出当前用户之外的那个用户
+      const otherUser = roomData.members.find(user => user.id !== currentUserId.value);
+
+      if (otherUser) {
+        // 设置房间名称为另一个用户的用户名
+        roomName.value = otherUser.username;
+        // 设置房间头像为另一个用户的头像
+        roomAvatar.value = otherUser.head;
+      } else {
+        console.error("未找到房间中除当前用户外的其他成员");
+      }
+    }
+    console.log("更新获取房间header信息成功", response1.data);
+  } catch (error) {
+    console.error('更新获取房间header信息失败', error);
+  }
     try {
       // 使用保存的 token
       const token = tokenValue.value; // 这里从响应式变量中获取 token
       const responseMsg = await axios.get(`http://localhost:8084/api/messages/sync?roomId=${currentRoomId.value}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-
+      console.log("获取房间历史消息成功",responseMsg.data);
       currentRoomMsg.value = responseMsg.data;
     } catch (error) {
       console.error('noclick获取房间初始聊天记录失败', error);
     }
-    // try {
-    //   // 使用保存的 token
-    //   const token = tokenValue.value; // 这里从响应式变量中获取 token
-    //     // 加入房间
-    //     const addRoomResponse = await axios.post(`http://localhost:8084/api/rooms/join`, {
-    //       roomId: currentRoomId.value,
-    //     },{  
-    //     headers: {
-    //     'Authorization': `Bearer ${token}`
-    //   }
-    //   });
-    //     console.log("addRoom success", currentRoomId);
-    // }
-    // catch (error) {
-    //   console.error('房间加入失败', error);
-    // }
 
     if (socket.value) {
       socket.value.close(); // 关闭旧的连接
@@ -396,58 +390,58 @@ const sendEmoji = (item) => {
 };
 
 // 点击文件按钮，触发文件选择框
-const triggerFileInput = () => {
-  fileInput.value.click();  // 触发 <input type="file" /> 的 click 事件
-};
+// const triggerFileInput = () => {
+//   fileInput.value.click();  // 触发 <input type="file" /> 的 click 事件
+// };
 
-// 处理文件选择并上传
-const sendFile = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    selectedFile.value = file;  // 保存选中的文件
-    console.log('选中的文件:', file);
-    fileType.value = getFileType(file);
+// // 处理文件选择并上传
+// const sendFile = (event) => {
+//   const file = event.target.files[0];
+//   if (file) {
+//     selectedFile.value = file;  // 保存选中的文件
+//     console.log('选中的文件:', file);
+//     fileType.value = getFileType(file);
 
-    // 此处可以处理文件上传操作，例：
-    // const formData = new FormData();
-    // formData.append('file', file);
-    // axios.post('upload_url', formData)
-    //   .then(response => console.log('文件上传成功', response))
-    //   .catch(error => console.error('文件上传失败', error));
+//     // 此处可以处理文件上传操作，例：
+//     // const formData = new FormData();
+//     // formData.append('file', file);
+//     // axios.post('upload_url', formData)
+//     //   .then(response => console.log('文件上传成功', response))
+//     //   .catch(error => console.error('文件上传失败', error));
 
-      // 现在为了演示，假设文件已经上传并返回了一个文件链接
+//       // 现在为了演示，假设文件已经上传并返回了一个文件链接
 
-  }
-};
+//   }
+// };
 
- // 根据文件类型判断文件类型
- const getFileType = (file) => {
-      const ext = file.name.split('.').pop().toLowerCase();
-      switch (ext) {
-        case 'docx':
-        case 'doc':
-          return 1; // Word
-        case 'xlsx':
-        case 'xls':
-          return 2; // Excel
-        case 'pptx':
-        case 'ppt':
-          return 3; // PPT
-        case 'pdf':
-          return 4; // PDF
-        case 'zip':
-          return 5; // Zip
-        case 'txt':
-          return 6; // Text file
-        default:
-          return 0; // Unknown file type
-      }
-    };
+//  // 根据文件类型判断文件类型
+//  const getFileType = (file) => {
+//       const ext = file.name.split('.').pop().toLowerCase();
+//       switch (ext) {
+//         case 'docx':
+//         case 'doc':
+//           return 1; // Word
+//         case 'xlsx':
+//         case 'xls':
+//           return 2; // Excel
+//         case 'pptx':
+//         case 'ppt':
+//           return 3; // PPT
+//         case 'pdf':
+//           return 4; // PDF
+//         case 'zip':
+//           return 5; // Zip
+//         case 'txt':
+//           return 6; // Text file
+//         default:
+//           return 0; // Unknown file type
+//       }
+//     };
 
-    // 向聊天框发送文件
-    const sendFileToChat = () => {
+//     // 向聊天框发送文件
+//     const sendFileToChat = () => {
 
-    };
+//     };
 
 
 const clickRoom = (room) => {
@@ -1016,16 +1010,13 @@ const sendMessage = async () => {
 
     .emoji {
     position: relative;  /* 使得它成为定位上下文 */
-    width: 80px;
-    height: 40px;
-    background-color: #3b3b3b;
-    color: white;
-    border-radius: 10px;
+    width: 30px;
+    height: 30px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 10; /* 确保它在其他元素之上 */
+    z-index: 1000; /* 确保它在其他元素之上 */
 }
   }
   .modal-overlay888 {

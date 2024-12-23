@@ -104,6 +104,7 @@ const register = async () => {
       username: inputUsername.value,
       //userId: inputId.value,
       password: inputPassword.value,
+      //userAvatar:"/images/ENFP-竞选者.png"
     });
     console.log('注册成功:', response.data);
     showMessage("注册成功", "success");

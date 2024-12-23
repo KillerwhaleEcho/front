@@ -88,6 +88,20 @@
         </div>
       </div>
 
+      <!-- 图片选择弹窗 -->
+      <div v-if="showPictureModal" class="modal-overlay4">
+        <div class="modal-content4">
+          <h3>选择头像</h3>
+          <div class="picture-container">
+            <div class="picture-choose" v-for="(pic, index) in Avatar" :key="index">
+              <!-- 用户头像 -->
+              <img :src="pic" alt="用户头像" class="avatarchoose" @click="chooseAvatar(pic)">
+            </div>
+          </div>
+          <button class="modal-close" @click="showPictureModal = false">关闭</button>
+        </div>
+      </div>
+
       <!-- 创建房间弹窗 -->
       <div v-if="showModal" class="modal-overlay">
         <div class="modal-content">
@@ -95,7 +109,9 @@
           <!-- 房间头像 -->
           <div class="avatar-section2">
             <img :src="avatar2Url || defaultAvatar" alt="头像" class="avatar2">
-            <input type="file" @change="uploadAvatar" />
+            <!-- <input type="file" @change="uploadAvatar" /> -->
+             <button class="btn" @click="showPictureModal=true">选择头像</button>
+
           </div>
           <form @submit.prevent="createRoom">
             <!-- 房间号 -->
@@ -230,6 +246,7 @@
   const showTagRoomModal = ref(false);
   const showSearchModal = ref(false);
   const showUserModal=ref(false);
+  const showPictureModal=ref(false);
   const searchInput = ref('');
   const tags = ref([]);
   const sugTags = ref([]);
@@ -241,7 +258,26 @@
   const UserData=ref([]);
   const currentRoomId = ref('');
   const currentUserId = ref('');
-
+  const currentUserAvatar = ref('');
+  const currentUserName = ref('');
+const Avatar = [
+  "/images/ENFJ-执政官.png",
+  "/images/ENFJ-主人公.png",
+  "/images/ENFP-竞选者.png",
+  "/images/ENTJ-指挥官.png",
+  "/images/ENTP-辩论家.png",
+  "/images/ESFP-表演者.png",
+  "/images/ESTJ-总经理.png",
+  "/images/ESTP-企业家.png",
+  "/images/INFJ-提倡者.png",
+  "/images/INFP-调停者.png",
+  "/images/INTJ-建筑师.png",
+  "/images/INTP-逻辑学家.png",
+  "/images/ISFJ-守卫者.png",
+  "/images/ISFP-探险家.png",
+  "/images/ISTJ-物流师.png",
+  "/images/ISTP-鉴赏家.png"
+]
   const defaultAvatar = "/images/ENFP-竞选者.png";
   
 
@@ -458,8 +494,41 @@ const searchUserId = async () => {
   }
 };
 
+//选择头像
+const chooseAvatar = async(pic) =>{
+  showPictureModal.value=false;
+  avatar2Url.value=pic;
+  avatar2.value=pic;
+
+}
+
 // 页面加载时请求房间数据
 onMounted(async () => {
+  try {
+    currentUserId.value = localStorage.getItem('currentUserId');
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
+    // 从后端获取用户数据
+    const response = await axios.post('http://localhost:8084/api/users/own', {
+    }, {  
+        headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+     
+    if(response.data.data.avatar==null){
+      currentUserAvatar.value =defaultAvatar;
+      console.log("加载默认头像",defaultAvatar);
+    }
+    currentUserName.value = response.data.data.username;
+    currentUserId.value = response.data.data.userid;
+    console.log("own2加载成功", response.data);
+    console.log("toux2加载成功", currentUserAvatar.value);
+    console.log("name2加载成功", currentUserName.value);
+    }
+    catch (error) {
+      console.error('获取own2信息失败', error);
+    }
   try {
     const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
     console.log("token", token);
@@ -998,7 +1067,6 @@ onMounted(async () => {
     }
 
     .avatar2 {
-      background-color: #87aca2;
       width: 100px;
       height: 100px;
       border-radius: 50%;
@@ -1146,6 +1214,52 @@ onMounted(async () => {
   border-radius: 8px;
   width: 700px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.modal-overlay4 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+/* 弹窗内容 */
+.modal-content4 {
+  background-color: white;
+  color: #87aca2;
+  padding: 20px;
+  border-radius: 8px;
+  width: 800px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+.picture-container {
+  height: 450px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  overflow-y: auto;
+}
+.picture-choose{
+  display: flex;
+  flex-direction: column;
+  width: 130px;
+  height: 130px;
+  gap:10px;
+  background-color: #f2f2f2;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  &:hover{
+    background-color: #d5d5d5;
+  }
+
+  .avatarchoose{
+    width: 80%;
+  }
 }
 </style>
   
