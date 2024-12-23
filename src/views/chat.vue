@@ -92,7 +92,7 @@
         <!-- 上侧信息展示 -->
         <div class="chat-info">
           <div class="room-header">
-            <img :src="roomAvatar" alt="Room Avater" class="room-avatar" />
+            <img :src="roomAvater"  alt="Room Avater" class="room-avatar" />
             <div class="room-name">{{roomName}}</div>
             <img :src="'public/images/再加三个点(More Three Dots)_爱给网_aigei_com.png'" class="settingimg"
               @click="showRoomSettingModal=true">
@@ -101,7 +101,8 @@
         <!-- 聊天内容区域 -->
         <div class="chat-container">
           <div v-for="msg in currentRoomMsg" :key="msg.id">
-            <div :class="{ 'left': msg.uid !== currentUserId, 'right': msg.uid === currentUserId }">
+            <div
+              :class="{ 'left': msg.userName !== currentUserName, 'right': msg.userName === currentUserName}">
               <div class="msgThreePart">
                 <img class="msgAvater" :src="msg.userAvater" @click="manageRel(msg)">
                 <div class="nameAndBubble">
@@ -347,6 +348,7 @@ watch(currentRoomId, async (newRoomId) => {
       const message = JSON.parse(event.data);
       currentRoomMsg.value.push(message);
     };
+    console.log("currentUserId=",currentUserId.value);
   }
 });
 
@@ -543,7 +545,7 @@ const sendMessage = async () => {
       currentRoomMsg.value = [];
     }
     // 将消息立即显示在聊天界面中
-     currentRoomMsg.value.push(message);
+     // currentRoomMsg.value.push(message);
 
     // 清空输入框
     document.querySelector('.chat-input').value = '';
