@@ -108,7 +108,7 @@
                 <div class="nameAndBubble">
                   <div class="msgName">{{ msg.userName }}</div>
                   <div class="message-bubble">
-                    {{ msg.content.text }}
+                    {{ msg.content.text}}
                   </div>
                 </div>
               </div>
@@ -327,7 +327,7 @@ watch(currentRoomId, async (newRoomId) => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       console.log("获取房间历史消息成功",responseMsg.data);
-      currentRoomMsg.value = responseMsg.data;
+      currentRoomMsg.value = responseMsg.data.data;
     } catch (error) {
       console.error('noclick获取房间初始聊天记录失败', error);
     }
