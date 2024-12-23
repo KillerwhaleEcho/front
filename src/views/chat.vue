@@ -433,7 +433,7 @@ const startchattingRoom2 = async () =>{
 
 const addBlacklist = async() =>{
   try {
-    const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/addBlacklist', {
+    const response = await axios.post('https://localhost:8084/api/users/blacklist', {
       headers: {
           'Authorization': `Bearer ${token}`
       },
