@@ -433,6 +433,12 @@ const manageRel = async (msg)=>{
   friendName.value=msg.userName;
   showfriendInfoModal.value=true;
 }
+const clickUser = async (roomUser)=>{
+  friendId.value=roomUser.userId;
+  friendAvatar.value=roomUser.head;
+  friendName.value=roomUser.username;
+  showfriendInfoModal.value=true;
+}
 
 const startchattingRoom2 = async () =>{
   console.log("私聊对象id", friendId.value);
