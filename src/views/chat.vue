@@ -23,9 +23,9 @@
             <div class="showRoomUser" v-for="(roomUser, index) in currentRoomUsers" :key="index"
               @click="clickUser(roomUser)">
               <!-- 用户头像 -->
-              <img :src="roomUser.userAvater" alt="用户头像" class="roomUserAvatar">
+              <img :src="roomUser.head" alt="用户头像" class="roomUserAvatar">
               <!--用户名 -->
-              <div class="roomUserName">{{ roomUser.userName }}</div>
+              <div class="roomUserName">{{ roomUser.username }}</div>
               <!-- 房间标签 -->
               <div class="roomUserId">{{ roomUser.userId }}</div>
             </div>
@@ -33,7 +33,7 @@
           <div class="roomInfom">
             <div>房间名：{{ roomName }}</div>
             <div>id:{{ currentRoomId }}</div>
-            <div>标签：{{ roomTag }}</div>
+            <div>标签：{{ roomTags }}</div>
           </div>
           <div class="button-area">
             <button class="modal-close2" @click="leaveRoom">退出房间</button>
@@ -46,8 +46,8 @@
       <div v-if="showfriendInfoModal" class="modal-overlay666">
         <div class="modal-content666">
           <img :src="friendAvatar" alt="用户头像" class="friendAvatar">
-          <div class="friendName">{{ friendName }}</div>
-          <div class="friendName">{{ friendId }}</div>
+          <div class="friendName">用户名：{{ friendName }}</div>
+          <div class="friendName">用户id：{{ friendId }}</div>
           <div class="button-area">
             <button class="friend-btn1" @click="startchattingRoom2">发起聊天</button>
             <button class="friend-btn2" @click="addBlacklist">加入黑名单</button>
@@ -121,13 +121,6 @@
           <!-- 功能按钮区 -->
           <div class="func-logo">
 
-            <!-- 点击文件按钮，触发文件选择 -->
-            <!-- <div class="file" @click="triggerFileInput">文件</div> -->
-
-            <!-- 文件选择输入框，默认隐藏 -->
-            <!-- <input type="file" id="docFile" ref="fileInput" @change="sendFile" accept="application/*,text/*,image/*"
-              style="display: none;" /> -->
-
             <!-- 点击表情按钮，切换表情面板显示与隐藏 -->
             <img src="/images/emoji/slightly-smiling-face.png" class="emoji" @click="clickEmoji">
             <!-- 表情面板 -->
@@ -167,7 +160,7 @@ const currentRoomMsg = ref([]);
 const currentRoomUsers = ref([]);
 const currentUserName=ref('');
 const currentUserAvatar=ref('');
-const roomTag = ref(null);
+const roomTags = ref([]);
 const roomType=ref('');
 const showRoomSettingModal=ref(false);
 const showfriendInfoModal = ref(false);
@@ -294,13 +287,9 @@ watch(currentRoomId, async (newRoomId) => {
     const roomData = response1.data.data;
 
     if (roomData.roomType === 'public') {
-      // 公共房间
-      // roomAvater.value = roomData.roomAvater; // 假设后端返回的数据包含avatar
-      // roomName.value = roomData.roomName; // 假设后端返回的数据包含roomName
-      // roomTag.value = roomData.roomTag;
-      // currentRoomUsers.value = roomData.members;
       roomAvatar.value =response1.data.data.roomAvatar;
       roomName.value=response1.data.data.roomName;
+      roomTags.value=response1.data.data.tags;
     }
 
     if (roomData.roomType === 'private') {
@@ -316,6 +305,7 @@ watch(currentRoomId, async (newRoomId) => {
         console.error("未找到房间中除当前用户外的其他成员");
       }
     }
+    currentRoomUsers.value=response1.data.data.members;
     console.log("更新获取房间header信息成功", response1.data);
   } catch (error) {
     console.error('更新获取房间header信息失败', error);
@@ -391,61 +381,6 @@ const sendEmoji = (item) => {
    
 };
 
-// 点击文件按钮，触发文件选择框
-// const triggerFileInput = () => {
-//   fileInput.value.click();  // 触发 <input type="file" /> 的 click 事件
-// };
-
-// // 处理文件选择并上传
-// const sendFile = (event) => {
-//   const file = event.target.files[0];
-//   if (file) {
-//     selectedFile.value = file;  // 保存选中的文件
-//     console.log('选中的文件:', file);
-//     fileType.value = getFileType(file);
-
-//     // 此处可以处理文件上传操作，例：
-//     // const formData = new FormData();
-//     // formData.append('file', file);
-//     // axios.post('upload_url', formData)
-//     //   .then(response => console.log('文件上传成功', response))
-//     //   .catch(error => console.error('文件上传失败', error));
-
-//       // 现在为了演示，假设文件已经上传并返回了一个文件链接
-
-//   }
-// };
-
-//  // 根据文件类型判断文件类型
-//  const getFileType = (file) => {
-//       const ext = file.name.split('.').pop().toLowerCase();
-//       switch (ext) {
-//         case 'docx':
-//         case 'doc':
-//           return 1; // Word
-//         case 'xlsx':
-//         case 'xls':
-//           return 2; // Excel
-//         case 'pptx':
-//         case 'ppt':
-//           return 3; // PPT
-//         case 'pdf':
-//           return 4; // PDF
-//         case 'zip':
-//           return 5; // Zip
-//         case 'txt':
-//           return 6; // Text file
-//         default:
-//           return 0; // Unknown file type
-//       }
-//     };
-
-//     // 向聊天框发送文件
-//     const sendFileToChat = () => {
-
-//     };
-
-
 const clickRoom = (room) => {
   currentRoomId.value=room.roomId.toString();
   console.log("click使房间号更改",currentRoomId.value);
@@ -470,10 +405,10 @@ const leaveRoom = async () => {
 }
 
 const manageRel = async (msg)=>{
-  friendId.value=msg.userId;
-  friendAvatar.value=msg.userAvater;
+  friendId.value=msg.uid;
+  friendAvatar.value=msg.userAvatar;
   friendName.value=msg.userName;
-  showfriendIonfoModal.value=true;
+  showfriendInfoModal.value=true;
 }
 
 const startchattingRoom2 = async () =>{

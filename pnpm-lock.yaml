@@ -28,7 +28,7 @@ importers:
         specifier: ^1.81.0
         version: 1.83.0
       vite:
-        specifier: ^5.4.10
+        specifier: ^5.4.11
         version: 5.4.11(sass@1.83.0)
       vite-plugin-vue-devtools:
         specifier: ^7.5.4
