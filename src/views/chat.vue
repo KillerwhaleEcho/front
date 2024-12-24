@@ -107,15 +107,9 @@
                 <img class="msgAvater" :src="msg.userAvatar" @click="manageRel(msg)">
                 <div class="nameAndBubble">
                   <div class="msgName">{{ msg.userName }}</div>
-                    <!-- 判断消息类型，如果是 TEXT 显示文本， 如果是 EMOJI 显示图片 -->
-                    <template v-if="msg.type === 'TEXT'">
-                      <div class="message-bubble">
-                      {{ msg.content.text }}
-                      </div>
-                    </template>
-                    <template v-else-if="msg.type === 'EMOJI'">
-                      <img :src="msg.content.url" alt="emoji" class="emoji-image" />
-                    </template>
+                  <div class="message-bubble">
+                    {{ msg.content.text}}
+                  </div>
                 </div>
               </div>
             </div>
@@ -137,7 +131,7 @@
 
           <!-- 消息发送区 -->
           <div class="send_area">
-            <textarea type="text" class="chat-input" placeholder="请输入消息..." @keyup.enter="sendMessage"/>
+            <textarea type="text" class="chat-input" placeholder="请输入消息..." />
             <button class="send-button" @click="sendMessage">发送</button>
           </div>
         </div>
@@ -300,14 +294,13 @@ watch(currentRoomId, async (newRoomId) => {
 
     if (roomData.roomType === 'private') {
       // 私密房间：找出当前用户之外的那个用户
-      const otherUserId = roomData.members.find(userId !== currentUserId.value);
+      const otherUser = roomData.members.find(user => user.id !== currentUserId.value);
 
-      if (otherUserId) {
-        console.log("找到私聊成员",otherUserId);
-        // // 设置房间名称为另一个用户的用户名
-        // roomName.value = otherUser.username;
-        // // 设置房间头像为另一个用户的头像
-        // roomAvatar.value = otherUser.head;
+      if (otherUser) {
+        // 设置房间名称为另一个用户的用户名
+        roomName.value = otherUser.username;
+        // 设置房间头像为另一个用户的头像
+        roomAvatar.value = otherUser.head;
       } else {
         console.error("未找到房间中除当前用户外的其他成员");
       }
@@ -367,9 +360,11 @@ const searchExistRoom = async () => {
       } else {
         console.log('未找到相关房间');
       }
+
     } catch (error) {
       console.error('搜索房间名字失败', error);
     }
+    
     searchExist.value = '';
   }
 };
@@ -381,27 +376,9 @@ const clickEmoji = () => {
 
 // 处理发送表情的事件
 const sendEmoji = (item) => {
-  console.log("发送表情:", item);
+  console.log("发送表情:", item.value);
   //下面会实现点击表情后直接sendmessage发送出去
-   // 构建消息对象
-   const message = {
-      uid: currentUserId.value,
-      roomId: currentRoomId.value,
-      type:"EMOJI",
-      content: {
-        url:item
-      },
-      userName: currentUserName.value, // 你可以根据实际情况替换
-      userAvatar: currentUserAvatar.value, // 同上
-    };
-
-    if (socket.value && socket.value.readyState === WebSocket.OPEN) {   
-      socket.value.send(JSON.stringify(message)); 
-      console.log("向websocket发送消息成功",JSON.stringify(message));
-    } else { 
-      console.log("向websocket发送消息失败",JSON.stringify(message));
-      setTimeout(() => sendMessage(message), 1000); // 1秒后重试 
-    }
+   
 };
 
 const clickRoom = (room) => {
@@ -433,29 +410,22 @@ const manageRel = async (msg)=>{
   friendName.value=msg.userName;
   showfriendInfoModal.value=true;
 }
-const clickUser = async (roomUser)=>{
-  friendId.value=roomUser.userId;
-  friendAvatar.value=roomUser.head;
-  friendName.value=roomUser.username;
-  showfriendInfoModal.value=true;
-}
 
 const startchattingRoom2 = async () =>{
-  console.log("私聊对象id", friendId.value);
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
-    console.log("token", token);
-      const response = await axios.post('http://localhost:8084/api/rooms/create', {
-        "receiverUid":friendId.value,
-        "roomType":"private",
-      },{ 
+      const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/createRoom', {
         headers: {
            'Authorization': `Bearer ${token}`
-        }
-        });
-      currentRoomId.value=response.data.data.roomId;
+        },
+        "roomId":roomId.value,
+        "roomName":" ",
+        "roomType":"private",
+        "roomAvatar":" "
+      });
       console.log('发起聊天成功', response.data);
-      showfriendInfoModal.value = false; // 关闭弹窗
+      localStorage.setItem("currentRoomId",roomId.value);
+      router.push('/chat');
+      showUserModal.value = false; // 关闭弹窗
     } catch (error) {
       console.error('发起聊天失败', error);
     }
@@ -1142,10 +1112,6 @@ const sendMessage = async () => {
   .friendName{
     font-weight: bold;
     font-size: 16px;
-  }
-
-  .emoji-image{
-    width: 50px;
   }
 </style>
   
