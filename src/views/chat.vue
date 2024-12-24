@@ -463,19 +463,22 @@ const startchattingRoom2 = async () =>{
 
 const addBlacklist = async() =>{
   try {
-    const response = await axios.post('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/addBlacklist', {
-      headers: {
-          'Authorization': `Bearer ${token}`
-      },
+    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    console.log("token", token);
+    const response = await axios.post('http://localhost:8084/api/users/blacklist', {
       "userId":friendId.value
-    });
+    },{
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      },
+    );
     console.log('加入黑名单成功', friendId.value);
-    showfriendIonfoModal.value = false; // 关闭弹窗
+    showfriendInfoModal.value = false; // 关闭弹窗
   } catch (error) {
     console.error('加入黑名单失败', error);
   }
 }
-
 const sendMessage = async () => {
   const content = document.querySelector('.chat-input').value;
   if (content) {
