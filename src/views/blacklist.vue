@@ -57,7 +57,7 @@
     try {
       const response =await axios.post(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/moveBlacklist`,{
         headers: {
-        'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         },
         userId:user.userId
       });
