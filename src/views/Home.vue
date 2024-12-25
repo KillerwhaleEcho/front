@@ -254,7 +254,6 @@ const Avatar = [
   currentRoomId.value = room.roomId;
   try {
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
         const addRoomResponse = await axios.post(`http://localhost:8084/api/rooms/join`, {
           roomId: currentRoomId.value,
         },{  
@@ -275,7 +274,6 @@ const handleTagClick = async (tagName) => {
   showTagRoomModal.value = true;
   try {
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
     const response = await axios.get(`http://localhost:8084/api/rooms/getRoomsByTag/${tagName}`,{ 
         headers: {
            'Authorization': `Bearer ${token}`
@@ -291,7 +289,6 @@ const startchattingRoom = async (user) =>{
   console.log("私聊对象id", user.id);
   try {
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/rooms/create', {
         "receiverUid":user.id,
         "roomType":"private",
@@ -314,7 +311,6 @@ const startchattingRoom = async (user) =>{
 const gotoblacklist = async(UserData)=>{
   try {
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/addblacklist', {
       "userId":UserData.value
     },{
@@ -371,7 +367,6 @@ const getRandomColor=()=> {
 
     try {
       const token = localStorage.getItem('token'); 
-      console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/rooms/create', {
         "roomName":roomName.value,
         "tags": tagsArray,
@@ -444,7 +439,6 @@ const searchUserId = async () => {
   if (searchInput.value) {
     try {
       const token = localStorage.getItem('token'); 
-      console.log("token", token);
       const response = await axios.get(`http://localhost:8084/api/users/getInfo/${searchInput.value}`,{ 
         headers: {
            'Authorization': `Bearer ${token}`
@@ -473,8 +467,7 @@ const chooseAvatar = async(pic) =>{
 onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
-    const token = localStorage.getItem('token');  
-    console.log("token", token);
+    const token = localStorage.getItem('token');
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -497,7 +490,6 @@ onMounted(async () => {
     }
   try {
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -513,7 +505,6 @@ onMounted(async () => {
     }
   try {
       const token = localStorage.getItem('token');  
-      console.log("token", token);
       const response = await axios.get('http://localhost:8084/api/rooms/get6rooms', {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -527,7 +518,6 @@ onMounted(async () => {
   }
   try {
     const token = localStorage.getItem('token');  
-      console.log("token", token);
     const response = await axios.get('http://localhost:8084/api/rooms/tags', {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -541,7 +531,6 @@ onMounted(async () => {
 
   try {
     const token = localStorage.getItem('token');  
-      console.log("token", token);
     const response = await axios.get('http://localhost:8084/api/rooms/sugTags', {
       headers: {
         'Authorization': `Bearer ${token}`

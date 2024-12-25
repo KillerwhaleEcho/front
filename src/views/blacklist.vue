@@ -45,8 +45,6 @@
   import { onMounted } from 'vue';
 
   const blacklist = ref([]);
-  const currentUserId = ref(null);
-  const token = ref(null);
 
   const moveBlacklist=async (user) => {
     try {
@@ -68,14 +66,13 @@
   onMounted(async () => {
   try {
     const token = localStorage.getItem('token');
-    console.log("token", token); 
     // 从后端获取用户数据
     const response = await axios.get('http://localhost:8084/api/users/getblacklist', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    blacklist.value = response.data;
+    blacklist.value = response.data.data;
     console.log("黑名单加载成功", response.data);
     }
     catch (error) {

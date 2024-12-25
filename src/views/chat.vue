@@ -176,7 +176,6 @@ onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -202,7 +201,6 @@ onMounted(async () => {
     currentUserId.value = localStorage.getItem('currentUserId');
     console.log("获取当前用户id成功", currentUserId.value);
     const token = localStorage.getItem('token'); 
-    console.log("获取token", token);
     tokenValue.value = token;
 
     // WebSocket连接地址
@@ -277,23 +275,22 @@ watch(currentRoomId, async (newRoomId) => {
     });
 
     const roomData = response1.data.data;
-
+    currentRoomUsers.value=response1.data.data.members;
     if (roomData.roomType === 'public') {
       roomAvatar.value =response1.data.data.roomAvatar;
       roomName.value=response1.data.data.roomName;
       roomTags.value=response1.data.data.tags;
     }
-
     if (roomData.roomType === 'private') {
-      const otherUserId = roomData.members.find(userId !== currentUserId.value);
-
+      const otherUser = members.filter(member => member.uid !== currentUserId)[0];
+      roomAvatar.value =otherUser.head;
+      roomName.value=otherUser.username;
       if (otherUserId) {
-        console.log("找到私聊成员",otherUserId);
+        console.log("找到私聊成员",roomName.value);
       } else {
         console.error("未找到房间中除当前用户外的其他成员");
       }
     }
-    currentRoomUsers.value=response1.data.data.members;
     console.log("更新获取房间header信息成功", response1.data);
   } catch (error) {
     console.error('更新获取房间header信息失败', error);
@@ -335,7 +332,6 @@ const searchExistRoom = async () => {
   if (searchExist.value) {
     try {
       const token = localStorage.getItem('token'); 
-      console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/rooms/myroom-search', {
         "query": searchExist.value
         }, {  
@@ -483,8 +479,7 @@ const clickUser = async (roomUser)=>{
 const startchattingRoom2 = async () =>{
   console.log("私聊对象id", friendId.value);
   try {
-    const token = localStorage.getItem('token');  
-    console.log("token", token);
+    const token = localStorage.getItem('token'); 
       const response = await axios.post('http://localhost:8084/api/rooms/create', {
         "receiverUid":friendId.value,
         "roomType":"private",
@@ -493,7 +488,7 @@ const startchattingRoom2 = async () =>{
            'Authorization': `Bearer ${token}`
         }
         });
-      currentRoomId.value=response.data.data.roomId;
+      //currentRoomId.value=response.data.data.roomId;
       console.log('发起聊天成功', response.data);
       showfriendInfoModal.value =false; 
       showRoomSettingModal.value=false;
@@ -505,7 +500,6 @@ const startchattingRoom2 = async () =>{
 const addBlacklist = async() =>{
   try {
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/addblacklist', {
       "userId":friendId.value
     },{

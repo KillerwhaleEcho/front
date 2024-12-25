@@ -175,7 +175,6 @@ onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
     const token = localStorage.getItem('token');  
-    console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -208,7 +207,6 @@ const chooseAvatar=async(pic)=>{
 const uploadAvatar = async() => {
   try {
     const token = localStorage.getItem('token');  
-    console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/users/upload-avatar', {
         avatar:tempAvatar.value
       }, {  
@@ -235,7 +233,6 @@ const saveNewUsername = async () => {
 
     try {
       const token = localStorage.getItem('token');
-      console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/users/upload-username', {
         username: newUsername.value,
       }, {  
@@ -263,7 +260,6 @@ const saveNewPassword = async () => {
   if (newPassword.value && newPassword.value === confirmPassword.value) {
     try {
       const token = localStorage.getItem('token');  
-      console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/users/update-password', {
         password: newPassword.value,
       }, {  
@@ -290,7 +286,6 @@ const saveNewPassword = async () => {
 const deleteAccount = async() => {
   try {
     const token = localStorage.getItem('token'); 
-    console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/deleteAccount', {
     }, {  
         headers: {
@@ -460,7 +455,6 @@ const signoutAccount = async() => {
 }
 
 .avatar999 {
-  background-color: #87aca2;
   width: 100px;
   height: 100px;
   border-radius: 50%;
