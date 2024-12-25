@@ -438,7 +438,7 @@ const addBlacklist = async() =>{
   try {
     const token = localStorage.getItem('token'); 
     console.log("token", token);
-    const response = await axios.post('http://localhost:8084/api/users/blacklist', {
+    const response = await axios.post('http://localhost:8084/api/users/addblacklist', {
       "userId":friendId.value
     },{
         headers: {
