@@ -50,12 +50,13 @@
 
   const moveBlacklist=async (user) => {
     try {
-      const response =await axios.post(`https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/moveBlacklist`,{
+      const token = localStorage.getItem('token'); 
+      const response =await axios.post(`http://localhost:8084/api/users/removeblacklist`,{
         headers: {
           'Authorization': `Bearer ${token}`
-        },
-        userId:user.userId
-      });
+        }},
+        {"userId":user.userId}
+      );
       console.log("删除黑名单成员成功",response.data);
       alert('移出黑名单成功');
     } catch (error) {
@@ -66,21 +67,21 @@
 
   onMounted(async () => {
   try {
-    currentUserId.value = localStorage.getItem('currentUserId');
-    token.value = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    console.log("token", token); 
     // 从后端获取用户数据
-    const response = await axios.get('https://9b5ce24c-fbae-47e3-bd54-f5b6e28c076e.mock.pstmn.io/getBlacklist', {
+    const response = await axios.get('http://localhost:8084/api/users/getblacklist', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-    blacklist.value = response.data.users;
-    console.log("黑名单加载成功", response.data.users);
+    blacklist.value = response.data;
+    console.log("黑名单加载成功", response.data);
     }
     catch (error) {
       console.error('黑名单加载失败', error);
     }
-});
+  });
   </script>
   
 <style lang="scss">
