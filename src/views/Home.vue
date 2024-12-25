@@ -422,15 +422,13 @@ const searchUserId = async () => {
     try {
       const token = localStorage.getItem('token'); 
       console.log("token", token);
-      const response = await axios.get('http://localhost:8084/api/users/getUserByUserId', {
-        UserId: searchInput.value
-      },{ 
+      const response = await axios.get(`http://localhost:8084/api/users/getInfo/${searchInput.value}`,{ 
         headers: {
            'Authorization': `Bearer ${token}`
         }
         });
-      UserData.value=response.data.users;
-      console.log("搜索到的用户信息为：",UserData.value);
+      UserData.value=response.data;
+      console.log("搜索到的用户id为：",response.data.data.userid);
       showSearchModal.value=false;
       showUserModal.value=true;
     } catch (error) {
