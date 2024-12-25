@@ -67,20 +67,19 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router'; // 引入 useRouter
+import { useRouter } from 'vue-router'; 
 import axios from 'axios';
 const router = useRouter();
 
-// 状态管理
-const active = ref(1); // 控制表单的切换
-const inputUsername = ref(""); // 用户名
-const inputId = ref(null); // 用户id
-const inputPassword = ref(""); // 密码
-const loginuserName = ref(null); // 登录用户名
-const loginPassword = ref(""); // 登录密码
 
-// 控制登录和注册的成功/失败提示
-const message = ref(null); // 控制消息的显示，格式为 { text: "", type: "success" | "error" }
+const active = ref(1); // 控制表单的切换
+const inputUsername = ref(""); 
+const inputId = ref(null); 
+const inputPassword = ref(""); 
+const loginuserName = ref(null); 
+const loginPassword = ref(""); 
+
+const message = ref(null); 
 
 
 // 切换表单显示
@@ -88,23 +87,19 @@ const toggleForm = () => {
 active.value = active.value == 1 ? 2 : 1;
 };
 
-// 显示消息
+
 const showMessage = (text, type) => {
   message.value = { text, type };
-  // 设置延迟，2秒后隐藏消息
   setTimeout(() => {
     message.value = null;
   }, 2000);
 };
 
-// 注册请求
 const register = async () => {
   try {
     const response = await axios.post('http://localhost:8084/api/users/register', {
       username: inputUsername.value,
-      //userId: inputId.value,
       password: inputPassword.value,
-      //userAvatar:"/images/ENFP-竞选者.png"
     });
     console.log('注册成功:', response.data);
     showMessage("注册成功", "success");
@@ -131,7 +126,6 @@ const login = async () => {
     showMessage("登录成功", "success");
     localStorage.setItem('token', response.data.data);
     console.log("token", response.data.data);
-    //localStorage.setItem('currentUserId', loginuserName.value);
     console.log("登录用户名：",loginuserName.value);
     loginuserName.value = "";
     loginPassword.value = "";
@@ -155,9 +149,8 @@ const login = async () => {
   align-items: center;
   background-color: #62A89B;
 
-  /* 顶栏样式 */
 .topbar {
-  background-color: rgba(78, 124, 114, 0.75); /* 与card颜色一致 */
+  background-color: rgba(78, 124, 114, 0.75); 
   padding: 15px;
   width: 100%;
   box-sizing: border-box;
@@ -182,10 +175,9 @@ const login = async () => {
   font-weight: bold;
 }
 
-/* 提示消息框 */
 .message-box {
     position: fixed;
-    top: 60px; /* 在顶栏下方 */
+    top: 60px; 
     left: 50%;
     transform: translateX(-50%);
     width: 300px;
@@ -372,7 +364,6 @@ const login = async () => {
               }
           }
 
-          /* 注册成功提示 */
           .success-message {
             margin-top: 10px;
             padding: 10px;
@@ -383,7 +374,7 @@ const login = async () => {
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             font-size: 14px;
-            z-index: 1000; /* 确保它在最上层 */
+            z-index: 1000; 
           }
       }
   }

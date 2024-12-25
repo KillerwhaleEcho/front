@@ -117,7 +117,6 @@
           <h3>选择头像</h3>
           <div class="picture-container">
             <div class="picture-choose" v-for="(pic, index) in Avatar" :key="index">
-              <!-- 用户头像 -->
               <img :src="pic" alt="用户头像" class="avatarchoose" @click="chooseAvatar(pic)">
             </div>
           </div>
@@ -133,7 +132,7 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
-import { useRouter } from 'vue-router'; // 引入 useRouter
+import { useRouter } from 'vue-router';
 
 
 const router = useRouter();
@@ -175,9 +174,8 @@ const Avatar = [
 onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token');  
     console.log("token", token);
-    // 从后端获取用户数据
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -209,10 +207,8 @@ const chooseAvatar=async(pic)=>{
 
 const uploadAvatar = async() => {
   try {
-    //currentUserId.value = localStorage.getItem('currentUserId');
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token');  
     console.log("token", token);
-      // 向后端发送POST请求上传头像，这里的接口地址需替换为实际后端接口
       const response = await axios.post('http://localhost:8084/api/users/upload-avatar', {
         avatar:tempAvatar.value
       }, {  
@@ -238,9 +234,8 @@ const saveNewUsername = async () => {
     console.log("尝试保存的用户名:", newUsername.value);
 
     try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token');
       console.log("token", token);
-      // 向后端发送请求修改用户名，接口地址需替换为实际后端接口
       const response = await axios.post('http://localhost:8084/api/users/upload-username', {
         username: newUsername.value,
       }, {  
@@ -267,9 +262,8 @@ const saveNewUsername = async () => {
 const saveNewPassword = async () => {
   if (newPassword.value && newPassword.value === confirmPassword.value) {
     try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token');  
       console.log("token", token);
-      // 向后端发送PUT请求修改密码，接口地址需替换为实际后端接口
       const response = await axios.post('http://localhost:8084/api/users/update-password', {
         password: newPassword.value,
       }, {  
@@ -295,7 +289,7 @@ const saveNewPassword = async () => {
 
 const deleteAccount = async() => {
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/deleteAccount', {
     }, {  
@@ -332,13 +326,11 @@ const signoutAccount = async() => {
   display: flex;
   flex-direction: column;
   background-color: #fbfcfc;
-  /* 背景色保持一致 */
 }
 
 /* 顶栏样式 */
 .topbar3 {
   background-color: rgb(83, 135, 124);
-  /* 与 card 颜色一致 */
   padding: 15px;
   width: 100%;
   box-sizing: border-box;
@@ -375,7 +367,6 @@ const signoutAccount = async() => {
 
   &:hover {
     color: #24d97f;
-    /* 鼠标悬停时的颜色 */
   }
 }
 
@@ -388,7 +379,6 @@ const signoutAccount = async() => {
 
   &:hover {
     color: #24d97f;
-    /* 鼠标悬停时的颜色 */
   }
 }
 
@@ -398,23 +388,17 @@ const signoutAccount = async() => {
   display: flex;
   flex-direction: column;
   flex: 1;
-  /* 让 content 填充剩余空间 */
   height: 100vh;
-  /* 使页面高度填充视口 */
 }
 
 .func-choose {
   position: absolute;
   width: 250px;
-  /* 设置左侧侧边栏的宽度 */
   background-color: #87aca2;
-  /* 设置侧边栏背景颜色 */
   box-sizing: border-box;
-  /* 包括内边距和边框 */
   display: flex;
   height: 100%;
   flex-direction: column;
-  /* 垂直排列 */
 }
 
 .self-info {
@@ -426,20 +410,16 @@ const signoutAccount = async() => {
   justify-content: center;
   align-items: center;
   background-color: #d9ede0;
-  /* 设置项的背景色 */
   padding: 12px;
   text-decoration: none;
   color: white;
   font-weight: bold;
   cursor: pointer;
-  /* 鼠标悬停时显示为指针 */
   transition: background-color 0.3s ease;
-  /* 设置背景色过渡效果 */
 }
 
 .func-choose a:hover {
   background-color: #e0e0e0;
-  /* 鼠标悬停时背景色变浅 */
 }
 
 /* 个人信息容器样式 */
@@ -518,7 +498,6 @@ const signoutAccount = async() => {
   color: #87aca2;
 }
 
-/* 修改头像弹窗整体样式 */
 .modal-overlay999 {
   position: fixed;
   top: 0;
@@ -559,7 +538,7 @@ const signoutAccount = async() => {
 .makesure{
   display: flex;
   flex-direction: column;
-  align-items: center;     /* 水平居中 */
+  align-items: center;    
 }
 
 .makesure-btn{

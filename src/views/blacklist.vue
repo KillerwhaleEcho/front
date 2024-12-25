@@ -14,20 +14,16 @@
   
       <!-- 页面主体内容 -->
       <div class="home4-content">
-        <!-- 左侧边栏选择 -->
         <div class="func-choose4">
           <a href="http://localhost:5173/own" class="self-info4">个人信息</a>
           <hr>
           <a href="http://localhost:5173/own/blacklist" class="blacklist4">黑名单</a>
-          <!-- <hr>
-          <a href="http://localhost:5173/own/settings" class="setting4">设置</a> -->
         </div>
 
         <!-- 右侧黑名单列表 -->
          <div class="list-container">
           <div class="list-user1">
             <div class="blackusercontainer" v-for="(user, index) in blacklist" :key="index">
-              <!-- 用户头像 -->
               <img :src="user.userAvater" alt="用户头像" class="blackuserAvatar">
               <div class="balck-userNameandbutton">
                   <div class="blackuserName">
@@ -48,7 +44,6 @@
   import axios from 'axios';
   import { onMounted } from 'vue';
 
-  // 你可以在这里添加任何需要的 Vue 逻辑
   const blacklist = ref([]);
   const currentUserId = ref(null);
   const token = ref(null);
@@ -92,16 +87,15 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background-color: #fbfcfc; /* 背景色保持一致 */
+    background-color: #fbfcfc; 
   }
-  /* 顶栏样式 */
   .topbar4 {
-    background-color: rgb(83, 135, 124); /* 与 card 颜色一致 */
+    background-color: rgb(83, 135, 124); 
     padding: 15px;
     width: 100%;
     box-sizing: border-box;
     display: flex;
-    justify-content: space-between; /* 左右对齐 */
+    justify-content: space-between; 
     align-items: center;
   }
 
@@ -131,7 +125,7 @@
     transition: color 0.3s;
 
     &:hover {
-      color: #24d97f; /* 鼠标悬停时的颜色 */
+      color: #24d97f;
     }
   }
 
@@ -143,7 +137,7 @@
     transition: color 0.3s;
 
     &:hover {
-      color: #24d97f; /* 鼠标悬停时的颜色 */
+      color: #24d97f;
     }
   }
 
@@ -152,20 +146,19 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    flex: 1; /* 让 content 填充剩余空间 */
+    flex: 1; 
     //padding: 20px;
-    height: 100vh; /* 使页面高度填充视口 */
+    height: 100vh; 
   }
 
   .func-choose4 {
     position: absolute;
-    width: 250px; /* 设置左侧侧边栏的宽度 */
-    background-color: #87aca2; /* 设置侧边栏背景颜色 */
-    box-sizing: border-box; /* 包括内边距和边框 */
+    width: 250px;
+    background-color: #87aca2; 
+    box-sizing: border-box; 
     display: flex;
     height: 100%;
-    flex-direction: column; /* 垂直排列 */
-    //gap: 15px; /* 设置每个项之间的间距 */
+    flex-direction: column;
   }
 
   .blacklist4{
@@ -176,18 +169,18 @@
   .func-choose4 a {
     justify-content: center;
     align-items: center;
-    background-color: #d9ede0; /* 设置项的背景色 */
+    background-color: #d9ede0; 
     padding: 12px;
     //font-size: 20px;
     text-decoration: none;
     color: white;
     font-weight: bold;
-    cursor: pointer; /* 鼠标悬停时显示为指针 */
-    transition: background-color 0.3s ease; /* 设置背景色过渡效果 */
+    cursor: pointer; 
+    transition: background-color 0.3s ease; 
   }
 
   .func-choose4 a:hover {
-    background-color: #e0e0e0; /* 鼠标悬停时背景色变浅 */
+    background-color: #e0e0e0; 
   }
 
   .list-container {

@@ -22,11 +22,8 @@
           <div class="users-container">
             <div class="showRoomUser" v-for="(roomUser, index) in currentRoomUsers" :key="index"
               @click="clickUser(roomUser)">
-              <!-- 用户头像 -->
               <img :src="roomUser.head" alt="用户头像" class="roomUserAvatar">
-              <!--用户名 -->
               <div class="roomUserName">{{ roomUser.username }}</div>
-              <!-- 房间标签 -->
               <div class="roomUserId">{{ roomUser.userId }}</div>
             </div>
           </div>
@@ -72,11 +69,8 @@
               </div>
               <div class="expAvater">
                 <div class="expNewmsg">
-                  <!-- 房间名 -->
                   <div class="room-name2">{{ room.roomName }}</div>
-                  <!-- 房间标签 -->
                   <div class="room-tag2">{{ room.roomTag }}</div>
-                  <!-- 房间人数 -->
                   <div class="room-people-count2">{{ room.roomPeopleCount }}</div>
                 </div>
                 <!-- 最新消息 -->
@@ -94,9 +88,9 @@
           <div class="room-header">
             <img :src="roomAvatar"  alt="Room Avater" class="room-avatar" />
             <div class="room-name">{{roomName}}</div>
-            <img :src="'public/images/再加三个点(More Three Dots)_爱给网_aigei_com.png'" class="settingimg"
-              @click="showRoomSettingModal=true">
           </div>
+          <img :src="'public/images/再加三个点(More Three Dots)_爱给网_aigei_com.png'" class="settingimg"
+              @click="showRoomSettingModal=true">
         </div>
         <!-- 聊天内容区域 -->
         <div class="chat-container">
@@ -107,7 +101,6 @@
                 <img class="msgAvater" :src="msg.userAvatar" @click="manageRel(msg)">
                 <div class="nameAndBubble">
                   <div class="msgName">{{ msg.userName }}</div>
-                    <!-- 判断消息类型，如果是 TEXT 显示文本， 如果是 EMOJI 显示图片 -->
                     <template v-if="msg.type === 'TEXT'">
                       <div class="message-bubble">
                       {{ msg.content.text }}
@@ -147,27 +140,23 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import Emoji from "../components/Emoji.vue";
-import FileCard from "../components/FileCard.vue";
 
 const socket = ref(null); // WebSocket连接对象
 const currentUserId = ref(null);
-// 定义响应式数据rooms，初始值先设为空数组，后续在onMounted中重新赋值
 const rooms = ref([]);
-// 定义响应式数据currentRoomId，初始值先设为null，后续在onMounted中根据情况赋值
 const currentRoomId = ref(null);
 const token = ref(null);
-const roomAvatar = ref(null);  // 存储房间头像
-const roomName = ref(null);  // 存储房间名字
+const roomAvatar = ref(null);  
+const roomName = ref(null); 
 const currentRoomMsg = ref([]);
 const currentRoomUsers = ref([]);
 const currentUserName=ref('');
 const currentUserAvatar=ref('');
 const roomTags = ref([]);
-const roomType=ref('');
 const showRoomSettingModal=ref(false);
 const showfriendInfoModal = ref(false);
 const friendId=ref('');
@@ -184,9 +173,8 @@ const defaultAvatar = "/images/ENFP-竞选者.png";
 onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("token", token);
-    // 从后端获取用户数据
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -211,9 +199,8 @@ onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
     console.log("获取当前用户id成功", currentUserId.value);
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("获取token", token);
-    // 将 token 存储在响应式变量中，便于后续使用
     tokenValue.value = token;
 
     // WebSocket连接地址
@@ -234,7 +221,6 @@ onMounted(async () => {
       const message = JSON.parse(event.data);
       console.log('解析后的消息:', message);
       currentRoomMsg.value.push(message);
-      // 继续处理消息
       } catch (error) {
         console.error('JSON 解析失败:', error);
         console.error('接收到的原始消息:', event.data);
@@ -253,39 +239,35 @@ onMounted(async () => {
 
     // 从后端获取房间数据
     const response = await axios.get('http://localhost:8084/api/rooms/room-choose', {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-  });
-    const data = response.data.data;
-    // 将获取到的房间数据赋值给rooms响应式数据
-    rooms.value = data;
-    console.log("聊天室加载成功", response.data.data);
-    currentRoomId.value = localStorage.getItem("currentRoomId");
-    console.log("跳转传递roomid：", currentRoomId.value);
-    // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
-    if (rooms.value.length > 0 && (currentRoomId.value == null || currentRoomId.value == 'undefined')) {
-      currentRoomId.value = rooms.value[0].roomId;
-      console.log("列表第一个房间：", currentRoomId);
-      // 设置 localStorage 中的 currentRoomId，保持房间 ID 状态
-      localStorage.setItem("currentRoomId", currentRoomId.value);
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+      const data = response.data.data;
+      rooms.value = data;
+      console.log("聊天室加载成功", response.data.data);
+      currentRoomId.value = localStorage.getItem("currentRoomId");
+      console.log("跳转传递roomid：", currentRoomId.value);
+      // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
+      if (rooms.value.length > 0 && (currentRoomId.value == null || currentRoomId.value == 'undefined')) {
+        currentRoomId.value = rooms.value[0].roomId;
+        console.log("列表第一个房间：", currentRoomId);
+        localStorage.setItem("currentRoomId", currentRoomId.value);
+      }
     }
-  }
-  catch (error) {
-    console.error('聊天室加载失败', error);
-  }
+    catch (error) {
+      console.error('聊天室加载失败', error);
+    }
 });
 
 
-// 在页面加载时或房间ID变化时获取房间信息
+// 监视目前房间Id
 watch(currentRoomId, async (newRoomId) => {
   if (newRoomId) {
     console.log("newroomid:",newRoomId);
     try {
-    // 使用保存的 token
-    const token = tokenValue.value; // 这里从响应式变量中获取 token
+    const token = tokenValue.value; 
 
-    // 使用房间ID获取房间信息
     const response1 = await axios.get(`http://localhost:8084/api/rooms/${newRoomId}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
@@ -299,15 +281,10 @@ watch(currentRoomId, async (newRoomId) => {
     }
 
     if (roomData.roomType === 'private') {
-      // 私密房间：找出当前用户之外的那个用户
       const otherUserId = roomData.members.find(userId !== currentUserId.value);
 
       if (otherUserId) {
         console.log("找到私聊成员",otherUserId);
-        // // 设置房间名称为另一个用户的用户名
-        // roomName.value = otherUser.username;
-        // // 设置房间头像为另一个用户的头像
-        // roomAvatar.value = otherUser.head;
       } else {
         console.error("未找到房间中除当前用户外的其他成员");
       }
@@ -318,8 +295,7 @@ watch(currentRoomId, async (newRoomId) => {
     console.error('更新获取房间header信息失败', error);
   }
     try {
-      // 使用保存的 token
-      const token = tokenValue.value; // 这里从响应式变量中获取 token
+      const token = tokenValue.value; 
       const responseMsg = await axios.get(`http://localhost:8084/api/messages/sync?roomId=${currentRoomId.value}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -330,7 +306,7 @@ watch(currentRoomId, async (newRoomId) => {
     }
 
     if (socket.value) {
-      socket.value.close(); // 关闭旧的连接
+      socket.value.close(); 
     }
 
     // 重新建立 WebSocket 连接
@@ -352,7 +328,7 @@ watch(currentRoomId, async (newRoomId) => {
 const searchExistRoom = async () => {
   if (searchExist.value) {
     try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token'); 
       console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/rooms/myroom-search', {
         "query": searchExist.value
@@ -360,8 +336,7 @@ const searchExistRoom = async () => {
         headers: { 'Authorization': `Bearer ${token}`}
       });
       console.log('搜索房间名字成功', response.data);
-         // 确保 data 是一个数组，并且存在至少一个房间
-         if (response.data && response.data.data && response.data.data.length > 0) {
+      if (response.data && response.data.data && response.data.data.length > 0) {
         currentRoomId.value = response.data.data[0].roomId;  // 获取第一个房间的 roomId
         console.log('房间ID:', currentRoomId.value);
       } else {
@@ -382,26 +357,24 @@ const clickEmoji = () => {
 // 处理发送表情的事件
 const sendEmoji = (item) => {
   console.log("发送表情:", item);
-  //下面会实现点击表情后直接sendmessage发送出去
-   // 构建消息对象
-   const message = {
-      uid: currentUserId.value,
-      roomId: currentRoomId.value,
-      type:"EMOJI",
-      content: {
-        url:item
-      },
-      userName: currentUserName.value, // 你可以根据实际情况替换
-      userAvatar: currentUserAvatar.value, // 同上
-    };
+  const message = {
+    uid: currentUserId.value,
+    roomId: currentRoomId.value,
+    type:"EMOJI",
+    content: {
+      url:item
+    },
+    userName: currentUserName.value, 
+    userAvatar: currentUserAvatar.value, 
+  };
 
-    if (socket.value && socket.value.readyState === WebSocket.OPEN) {   
-      socket.value.send(JSON.stringify(message)); 
-      console.log("向websocket发送消息成功",JSON.stringify(message));
-    } else { 
-      console.log("向websocket发送消息失败",JSON.stringify(message));
-      setTimeout(() => sendMessage(message), 1000); // 1秒后重试 
-    }
+  if (socket.value && socket.value.readyState === WebSocket.OPEN) {   
+    socket.value.send(JSON.stringify(message)); 
+    console.log("向websocket发送消息成功",JSON.stringify(message));
+  } else { 
+    console.log("向websocket发送消息失败",JSON.stringify(message));
+    setTimeout(() => sendMessage(message), 1000); // 1秒后重试 
+  }
 };
 
 const clickRoom = (room) => {
@@ -411,8 +384,7 @@ const clickRoom = (room) => {
 
 const leaveRoom = async () => {
   try {
-    // 使用保存的 token
-    const token = tokenValue.value; // 这里从响应式变量中获取 token
+    const token = tokenValue.value; 
     const response = await axios.post(`http://localhost:8084/api/rooms/${currentRoomId.value}/leave`, {}, {  
      headers: {
     'Authorization': `Bearer ${token}`
@@ -443,7 +415,7 @@ const clickUser = async (roomUser)=>{
 const startchattingRoom2 = async () =>{
   console.log("私聊对象id", friendId.value);
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token');  
     console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/rooms/create', {
         "receiverUid":friendId.value,
@@ -455,7 +427,8 @@ const startchattingRoom2 = async () =>{
         });
       currentRoomId.value=response.data.data.roomId;
       console.log('发起聊天成功', response.data);
-      showfriendInfoModal.value = false; // 关闭弹窗
+      showfriendInfoModal.value =false; 
+      showRoomSettingModal.value=false;
     } catch (error) {
       console.error('发起聊天失败', error);
     }
@@ -463,7 +436,7 @@ const startchattingRoom2 = async () =>{
 
 const addBlacklist = async() =>{
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("token", token);
     const response = await axios.post('http://localhost:8084/api/users/blacklist', {
       "userId":friendId.value
@@ -474,7 +447,7 @@ const addBlacklist = async() =>{
       },
     );
     console.log('加入黑名单成功', friendId.value);
-    showfriendInfoModal.value = false; // 关闭弹窗
+    showfriendInfoModal.value = false; 
   } catch (error) {
     console.error('加入黑名单失败', error);
   }
@@ -482,7 +455,6 @@ const addBlacklist = async() =>{
 const sendMessage = async () => {
   const content = document.querySelector('.chat-input').value;
   if (content) {
-    // 构建消息对象
     const message = {
       uid: currentUserId.value,
       roomId: currentRoomId.value,
@@ -490,15 +462,9 @@ const sendMessage = async () => {
       content: {
         text:content
       },
-      userName: currentUserName.value, // 你可以根据实际情况替换
-      userAvatar: currentUserAvatar.value, // 同上
+      userName: currentUserName.value, 
+      userAvatar: currentUserAvatar.value, 
     };
-
-    // WebSocket连接地址
-    //const websocketUrl = `ws://localhost:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
-
-    // 创建 WebSocket 连接
-    //socket.value = new WebSocket(websocketUrl);
 
     if (socket.value && socket.value.readyState === WebSocket.OPEN) {   
       socket.value.send(JSON.stringify(message)); 
@@ -512,10 +478,6 @@ const sendMessage = async () => {
     if (!Array.isArray(currentRoomMsg.value)) {
       currentRoomMsg.value = [];
     }
-    // 将消息立即显示在聊天界面中
-     // currentRoomMsg.value.push(message);
-
-    // 清空输入框
     document.querySelector('.chat-input').value = '';
   }
 };
@@ -574,7 +536,6 @@ const sendMessage = async () => {
 
       &:hover {
         color: #24d97f;
-        /* 鼠标悬停时的颜色 */
       }
     }
 
@@ -587,7 +548,6 @@ const sendMessage = async () => {
 
       &:hover {
         color: #24d97f;
-        /* 鼠标悬停时的颜色 */
       }
     }
 
@@ -595,21 +555,15 @@ const sendMessage = async () => {
     .home2-content {
       display: flex;
       height: 90%;
-      /* 使用 Flexbox 布局 */
       flex-direction: row;
-      /* 设置 Flex 容器的子元素按垂直方向排列 */
       flex: 1;
-      /* 让 content 填充剩余的空间 */
       color: white;
-      /* 设置字体颜色为白色 */
       padding: 0px;
-      /* 给容器添加内边距，防止内容紧贴容器边缘 */
     }
 
     .chat_search {
       display: flex;
       justify-content: space-between;
-      /* 输入框和按钮之间的间距 */
     }
 
     .search2-input {
@@ -625,7 +579,6 @@ const sendMessage = async () => {
     //搜索按钮
     .secondbar2-link {
       width: 30%;
-      /* 每个按钮占 30% 宽度，保证它们均匀分布 */
       height: 30px;
       background: rgb(249, 250, 250);
       color: #5da877;
@@ -644,42 +597,31 @@ const sendMessage = async () => {
 
     .chat_choose {
       width: 350px;
-      /* 设置侧边栏的宽度 */
       background-color: #87aca2;
       border-right: 1px solid #ddd;
-      /* 给侧边栏加一个右边框 */
       padding: 20px;
       box-sizing: border-box;
       height: 100%;
     }
 
     .roomshow {
-      //background-color: #777;
       list-style: none;
       max-height: 80vh;
-      /* 设置最大高度为视口高度的 80% */
       overflow-y: auto;
-      /* 启用垂直滚动条，超出内容时可滚动 */
     }
 
     .roomlist {
       list-style: none;
       max-height: 80vh;
-      /* 设置最大高度为视口高度的 80% */
       overflow-y: auto;
-      /* 启用垂直滚动条，超出内容时可滚动 */
       padding: 0;
-      /* 去掉ul的内边距 */
       margin-top: 15px;
-      /* 去掉ul的外边距 */
       list-style-type: none;
-      /* 去掉默认的列表样式 */
     }
 
     .roomwindow {
       flex: 1;
       padding: 10px;
-      /* 设置每个列表项内边距为 10px，增加点击区域，增强用户体验 */
       background-color: #d9ede0;
       border-radius: 40px;
       cursor: pointer;
@@ -699,17 +641,13 @@ const sendMessage = async () => {
 
       .expAvater {
         display: flex;
-        /* 使用 Flexbox 布局 */
         flex-direction: column;
-        /* 设置 Flex 容器的子元素按垂直方向排列 */
         gap: 10px;
       }
 
       .expNewmsg {
         display: flex;
-        /* 使用 Flexbox 布局 */
         flex-direction: row;
-        /* 设置 Flex 容器的子元素按垂直方向排列 */
         gap: 20px;
       }
 
@@ -759,9 +697,10 @@ const sendMessage = async () => {
     .chat-info {
       padding: 15px;
       background-color: #ffffff;
-      border-radius: 40px 40px 0 0; /* 上两个角设置圆角，下两个角不设置圆角 */
+      border-radius: 40px 40px 0 0;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
     }
 
@@ -785,8 +724,8 @@ const sendMessage = async () => {
     }
 
     .settingimg{
+      float: right;
       width: 30px;
-      margin-left: 950px;
     }
 
     .chat-container {
@@ -796,8 +735,6 @@ const sendMessage = async () => {
       overflow-y: auto;
       background-color: #ffffff;
       flex-direction: column;
-      /* 垂直排列子元素 */
-      //gap: 10px; /* 设置竖直间隔 */
       display: flex;
     }
 
@@ -843,21 +780,12 @@ const sendMessage = async () => {
 
     .message-bubble {
       width: auto;
-      /* 设置元素的最大宽度为其父元素宽度的60%，这样可以限制消息气泡在不同屏幕宽度下不会过宽，保持合适的显示效果，避免内容撑得太开。*/
-      //max-width: 90%;
-      /* 给元素内部添加内边距，上下左右均为12px，内边距可以让消息内容在气泡内部有一定的空间，避免文字等内容紧贴着边框，提升视觉效果。*/
       padding: 12px;
-      /* 在元素的底部设置外边距为12px，使得每个消息气泡之间在垂直方向上有一定的间隔，增强页面的层次感和可读性。*/
       margin-bottom: 12px;
-      /* 设置元素的四个角为圆角，圆角半径为18px，让消息气泡的角看起来是圆润的，而不是直角，使整体外观更加柔和、美观。*/
       border-radius: 18px;
-      /* 定义元素内文字的字体大小为16px，确定文字显示的基本大小，以保证文字在合适的视觉尺度上呈现，便于阅读。*/
       font-size: 16px;
-      /* 设置行高为1.5倍字体大小，合适的行高有助于提升文字的可读性，让多行文字之间有适当的间距，不会显得过于拥挤。*/
       line-height: 1.5;
-      /* 将元素以行内块级元素的形式进行显示，这样它既具有块级元素可以设置宽高、内外边距等特性，又能像行内元素一样在一行内排列（如果空间允许），常用于布局类似聊天消息这样需要灵活排列的元素。*/
       display: inline-block;
-      /* 当元素内的文字等内容超出元素宽度时，自动进行换行，确保内容不会溢出元素边界，保证消息内容能完整显示。*/
       word-wrap: break-word;
     }
 
@@ -874,7 +802,6 @@ const sendMessage = async () => {
       margin-right: 10px;
       margin-left: auto;
       justify-content: flex-end;
-      /* 新增：设置右浮动，确保与左消息交错 */
       float: right;
     }
 
@@ -884,42 +811,30 @@ const sendMessage = async () => {
       height: 180px;
       background-color: #ffffff;
       box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
-      border-radius: 0 0 40px 40px ; /* 上两个角设置圆角，下两个角不设置圆角 */
+      border-radius: 0 0 40px 40px ; 
     }
 
     .func-logo {
       position: relative;
       display: flex;
-      /* 使用 flex 布局，使子元素水平排列 */
       gap: 20px;
-      /* 设置子元素之间的间距为 20px */
-      //justify-content: center; /* 在水平方向上居中对齐子元素 */
       align-items: center;
-      /* 在垂直方向上居中对齐子元素 */
       width: 100%;
-      /* 设置容器的宽度为父元素的 100%，确保容器宽度自适应 */
       height: 30px;
-      /* 设置容器的高度为 30px */
       background-color: #ffffff;
-      /* 设置容器的背景色为 #87aca2（绿色调） */
     }
 
 
     .func-logo>div {
       padding: 2px;
-      /* 给每个子元素添加一些内边距，提升点击区域 */
       font-size: 15px;
       color: #797979;
       background-color: #ffffff;
-      /* 背景颜色 */
-      //border-radius: 8px; /* 设置圆角 */
       cursor: pointer;
-      /* 鼠标悬停时显示为指针 */
     }
 
     .func-logo>div:hover {
       background-color: #e0e0e0;
-      /* 鼠标悬停时改变背景颜色 */
     }
 
     .send_area{
@@ -928,54 +843,36 @@ const sendMessage = async () => {
 
     .chat-input {
       flex: 1;
-      /* 让输入框占据父容器中剩余的空间 */
       height: 80%;
-      /* 设置输入框的高度为 40px */
       width: 90%;
       padding: 2px 15px 5px 10px;
-      /* 设置左右内边距为 15px，使输入框内容不贴边 */
       border: 1px solid #ffffff;
-      /* 设置边框为 1px 宽，颜色为浅灰色（#ddd） */
       font-size: 16px;
-      /* 设置输入框字体大小为 16px */
       outline: none;
-      /* 移除输入框聚焦时的默认轮廓（边框阴影） */
       transition: border-color 0.3s ease;
-      /* 设置边框颜色的平滑过渡效果 */
       white-space: pre-wrap;
       /* 保证换行符被正确显示 */
       word-wrap: break-word;
       /* 使超出宽度的内容自动换行 */
       line-height: 1.5;
-      /* 设置行高，以改善文本显示 */
       border-radius: 0 0 0 40px;
     }
 
     .send-button {
       background-color: rgb(249, 250, 250);
-      /* 设置按钮的背景颜色为蓝色 (#0084FF) */
       color: #5da877;
-      /* 设置按钮文字颜色为白色 */
       font-size: 16px;
-      /* 设置按钮文字大小为 16px */
       padding: 10px 20px;
-      /* 设置按钮的内边距，上下 10px，左右 20px */
       border: none;
-      /* 去掉按钮的边框 */
       border-radius: 20px;
-      /* 设置按钮的圆角为 20px，使按钮边缘圆滑 */
       cursor: pointer;
-      /* 设置鼠标悬停时，按钮显示为指针，表示可以点击 */
       margin-right: 10px;
-      /* 设置按钮与输入框之间的左外边距为 10px，提供一些间隔 */
       margin-bottom: 10px;
       transition: background-color 0.3s ease;
-      /* 设置按钮背景颜色的平滑过渡效果 */
     }
 
     .send-button:hover {
       background-color: #e0e0e0;
-      /* 鼠标悬停时，按钮背景颜色变为深蓝色 (#005bb5) */
     }
 
     .emoji {
@@ -986,7 +883,7 @@ const sendMessage = async () => {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 1000; /* 确保它在其他元素之上 */
+    z-index: 1000;
 }
   }
   .modal-overlay888 {
@@ -1033,8 +930,8 @@ const sendMessage = async () => {
     border-radius: 10px;
     background-color: #f2f2f2;
     font-size: 16px;
-    justify-content: center; /* 水平居中 */
-    align-items: center; /* 垂直居中 */
+    justify-content: center; 
+    align-items: center; 
   }
 
   .roomUserAvatar{
@@ -1044,7 +941,7 @@ const sendMessage = async () => {
   .button-area{
     display: flex;
     flex-direction: row;
-    justify-content: space-between;  /* 水平布局：将子元素分散排列，左边一个，右边一个 */
+    justify-content: space-between;
     align-items: flex-end;
     .modal-close2 {
     background-color: #87aca2;

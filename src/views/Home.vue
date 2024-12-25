@@ -53,9 +53,7 @@
               <!-- </div> -->
               <div class="NCMT">
                 <div class="NC">
-                  <!-- 房间名称 -->
                   <div class="room-name2">{{ room.roomName }}</div>
-                  <!-- 在线人数 -->
                   <div class="room-online2">{{ room.roomPeopleCount }} </div>
                 </div>
                 <div class="MT">
@@ -75,10 +73,8 @@
           <h3>搜索用户</h3>
           <div class="tagRooms">
             <div class="group_sug2" v-for="(user, index) in UserData" :key="index">
-              <!-- 用户头像 -->
               <img :src="user.userAvater" alt="用户头像" class="room-avatar2">
               <div class="search-userNameandbutton">
-                  <!-- 房间名称 -->
                   <div class="room-name2">{{ user.userName }}</div>
                   <button class="startchatting" @click="startchattingRoom(user)">发起聊天</button>
               </div>
@@ -94,7 +90,6 @@
           <h3>选择头像</h3>
           <div class="picture-container">
             <div class="picture-choose" v-for="(pic, index) in Avatar" :key="index">
-              <!-- 用户头像 -->
               <img :src="pic" alt="用户头像" class="avatarchoose" @click="chooseAvatar(pic)">
             </div>
           </div>
@@ -106,33 +101,20 @@
       <div v-if="showModal" class="modal-overlay">
         <div class="modal-content">
           <h3>创建房间</h3>
-          <!-- 房间头像 -->
           <div class="avatar-section2">
             <img :src="avatar2Url || defaultAvatar" alt="头像" class="avatar2">
-            <!-- <input type="file" @change="uploadAvatar" /> -->
              <button class="btn" @click="showPictureModal=true">选择头像</button>
 
           </div>
           <form @submit.prevent="createRoom">
-            <!-- 房间号 -->
-            <!-- <div>
-              <label>房间号：</label>
-              <span>{{ roomId }}</span>
-            </div> -->
-
-            <!-- 房间名 -->
             <div>
               <label>房间名：</label>
               <input type="text" v-model="roomName" required />
             </div>
-
-            <!-- 标签 -->
             <div>
               <label>标签：</label>
               <input type="text" v-model="roomTag" />
             </div>
-
-            <!-- 属性选择 -->
             <div>
               <label>属性：</label>
               <label>
@@ -142,8 +124,6 @@
                 <input type="radio" value="private" v-model="roomType" /> 私密
               </label>
             </div>
-
-            <!-- 按钮 -->
             <div class="modal-buttons">
               <button type="submit">确认</button>
               <button type="button" @click="closeModal">取消</button>
@@ -157,7 +137,6 @@
         <div class="home-content">
           <div class="container">
             <div class="top-container1">
-              <!-- 根据后台标签数实时查询，将房间数最多的10个标签，设置为按钮 -->
               <!-- 10个大小不一的彩色按钮 -->
               <button class="random-btn" style="top: 20px; left: 230px; background-color:red;"></button>
               <button class="random-btn" style="top: 50px; left: 750px; background-color:#E4080A" ></button>
@@ -171,7 +150,6 @@
               <button class="random-btn" style="top: 80px; left: 600;  background-color:cadetblue"></button>
             </div>
             <div class="top-container2">
-              <!-- 复制按钮，使得循环更加无缝 -->
               <button class="random-btn" style="top: 20px; left: 230px;  background-color:#E4080A; background-color:red;"></button>
               <button class="random-btn" style="top: 50px; left: 950px;  background-color:#E4080A; background-color:#E4080A;"></button>
               <button class="random-btn" style="top: 100px; left: 380px;  background-color:#E4080A; background-color:#FFDE59;"></button>
@@ -186,33 +164,23 @@
           </div>
         </div>
         <div class="bottom-container">
-          <!-- 新添加的图片容器 -->
           <div class="image-container">
             <img :src="'/images/ENFP-竞选者.png'" alt="Image" class="image-content">
           </div>
 
           <div class="group_sug1" v-for="(room, index) in rooms" :key="index" @click="group_sug1Click(room)">
-            <!-- 房间头像 -->
             <div class="grp1_img">
               <img :src="room.avatarUrl || defaultAvatar" alt="房间头像" class="room-avatar">
             </div>
-
-            <!-- 房间名称 -->
             <div class="room-name">{{ room.roomName }}</div>
-
-            <!-- 房间标签 -->
             <div class="room-tag">{{ room.roomTag }}</div>
-
-            <!-- 在线人数 -->
             <div class="room-online">{{ room.onlineCount }} 在线</div>
           </div>
         </div>
       </div>
       <!-- 右侧边栏 -->
       <div class="secondbar">
-        <!-- 搜索输入框和按钮 -->
         <div class="search-container">
-          <!-- <input type="text" class="search-input" placeholder="请输入搜索内容"> -->
           <button class="secondbar-link3" @click="showSearchModal = true">搜索</button>
         </div>
 
@@ -224,22 +192,20 @@
 </template>
   
   <script setup>
-  // 你可以在这里添加任何需要的 Vue 逻辑
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router'; // 引入 useRouter
+  import { useRouter } from 'vue-router'; 
   import axios from 'axios';
   import { onMounted } from 'vue';
 
 
-  const router = useRouter(); // 初始化路由实例
-  // 表单数据
-  const roomId = ref(''); // 自动生成房间号
+  const router = useRouter(); 
+  const roomId = ref(''); 
   const roomName = ref('');
   const roomTag = ref(''); 
   const roomType = ref('public');
   const avatar2 = ref(null);
-  const avatar2Url = ref(defaultAvatar); // 上传头像的预览URL
-  const rooms = ref([]); // 用于存储从后端获取的房间数据
+  const avatar2Url = ref(defaultAvatar); 
+  const rooms = ref([]); 
   // 弹窗控制
   const showModal = ref(false);
   const showTagModal = ref(false);
@@ -250,9 +216,7 @@
   const searchInput = ref('');
   const tags = ref([]);
   const sugTags = ref([]);
-  // 新增：用于存储标签房间弹窗中要展示的房间数据（根据点击的标签动态变化）
   const tagRoomsData = ref([]);
-  // 新增：用于标识当前点击的标签（方便向后端请求对应标签的房间数据）
   const currentTag = ref('');
   const token = ref('');
   const UserData=ref([]);
@@ -286,9 +250,8 @@ const Avatar = [
   console.log("点击推荐房间",room.roomId);
   currentRoomId.value = room.roomId;
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("token", token);
-        // 加入房间
         const addRoomResponse = await axios.post(`http://localhost:8084/api/rooms/join`, {
           roomId: currentRoomId.value,
         },{  
@@ -304,14 +267,12 @@ const Avatar = [
   router.push('/chat' ); 
   };
 
-  // 点击标签按钮（random-btn和tag-btn通用的点击处理函数）
 const handleTagClick = async (tagName) => {
   currentTag.value = tagName;
   showTagRoomModal.value = true;
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("token", token);
-    // 向后端发送GET请求，查询包含当前点击标签的房间数据，这里的API地址需根据实际后端接口调整
     const response = await axios.get(`http://localhost:8084/api/rooms/getRoomsByTag/${tagName}`,{ 
         headers: {
            'Authorization': `Bearer ${token}`
@@ -326,7 +287,7 @@ const handleTagClick = async (tagName) => {
 const startchattingRoom = async (user) =>{
   console.log("私聊对象id", user.id);
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/rooms/create', {
         "receiverUid":user.id,
@@ -341,7 +302,7 @@ const startchattingRoom = async (user) =>{
       console.log('发起聊天成功', response.data);
       localStorage.setItem("currentRoomId",roomId.value);
       router.push('/chat');
-      showUserModal.value = false; // 关闭弹窗
+      showUserModal.value = false; 
     } catch (error) {
       console.error('发起聊天失败', error);
     }
@@ -379,15 +340,14 @@ const getRandomColor=()=> {
     formData.append('roomTag', roomTag.value);
     formData.append('roomType', roomType.value);
     if (avatar2.value) {
-      formData.append('avatar', avatar2.value); // 上传头像文件
+      formData.append('avatar', avatar2.value); 
     }
-     // 将 roomTag 转换为标签数组，支持中英文逗号分隔标签
-    const tagsArray = roomTag.value.split(/[，,]/).map(tag => tag.trim()); // 去除每个标签的前后空格
+    const tagsArray = roomTag.value.split(/[，,]/).map(tag => tag.trim()); 
 
      console.log("tagsArray", tagsArray);
 
     try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token'); 
       console.log("token", token);
       const response = await axios.post('http://localhost:8084/api/rooms/create', {
         "roomName":roomName.value,
@@ -404,33 +364,19 @@ const getRandomColor=()=> {
       localStorage.setItem("currentRoomId",roomId.value);
       console.log('成功', currentRoomId);
       router.push('/chat');
-      showModal.value = false; // 关闭弹窗
+      showModal.value = false; 
       resetForm();
     } catch (error) {
       console.error('创建房间失败', error);
     }
   };
 
-// 上传头像
-const uploadAvatar = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    avatar2.value = file;
-    const reader = new FileReader();
-    reader.onload = () => {
-      avatar2Url.value = reader.result;
-    };
-    reader.readAsDataURL(file);
-  }
-};
-
 //搜索标签
 const searchTag = async () => {
   if (searchInput.value) {
     try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token');  
     console.log("token", token);
-    // 向后端发送GET请求，查询包含当前点击标签的房间数据，这里的API地址需根据实际后端接口调整
     const response = await axios.get(`http://localhost:8084/api/rooms/getRoomsByTag/${searchInput.value}`,{ 
         headers: {
            'Authorization': `Bearer ${token}`
@@ -450,7 +396,7 @@ const searchTag = async () => {
 const searchRoomId = async () => {
   if (searchInput.value) {
     try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token'); 
       console.log("token", token);
       const response = await axios.get(`http://localhost:8084/api/rooms/getRoomsByRoomId/${searchInput.value}`, {
         headers: {
@@ -474,7 +420,7 @@ const searchRoomId = async () => {
 const searchUserId = async () => {
   if (searchInput.value) {
     try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token'); 
       console.log("token", token);
       const response = await axios.get('http://localhost:8084/api/users/getUserByUserId', {
         UserId: searchInput.value
@@ -506,9 +452,8 @@ const chooseAvatar = async(pic) =>{
 onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token');  
     console.log("token", token);
-    // 从后端获取用户数据
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -530,9 +475,8 @@ onMounted(async () => {
       console.error('获取own2信息失败', error);
     }
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token'); 
     console.log("token", token);
-    // 从后端获取用户数据
     const response = await axios.post('http://localhost:8084/api/users/own', {
     }, {  
         headers: {
@@ -547,7 +491,7 @@ onMounted(async () => {
       console.error('userId获取失败', error);
     }
   try {
-      const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+      const token = localStorage.getItem('token');  
       console.log("token", token);
       const response = await axios.get('http://localhost:8084/api/rooms/get6rooms', {
       headers: {
@@ -555,36 +499,34 @@ onMounted(async () => {
       }
     }); 
 
-    rooms.value = response.data.data; // 假设 API 返回的数据结构是 { rooms: [...] }、
+    rooms.value = response.data.data;
     console.log("六个房间加载成功",response.data);
   } catch (error) {
     console.error('获取房间数据失败', error);
   }
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token');  
       console.log("token", token);
     const response = await axios.get('http://localhost:8084/api/rooms/tags', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
-     // 获取标签数据
-    tags.value = response.data.data; // 假设返回的格式是 [{ name: 'Kpop', color: '#6A5ACD' }, ...]
+    tags.value = response.data.data; 
     console.log("标签加载成功",tags.value);
   } catch (error) {
     console.error('获取标签数据失败', error);
   }
 
   try {
-    const token = localStorage.getItem('token');  // 确保是从 localStorage 获取的字符串
+    const token = localStorage.getItem('token');  
       console.log("token", token);
     const response = await axios.get('http://localhost:8084/api/rooms/sugTags', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     }); 
-     // 获取标签数据
-    sugTags.value = response.data.data; // 假设返回的格式是 [{ name: 'Kpop', color: '#6A5ACD' }, ...]
+    sugTags.value = response.data.data; 
     console.log("滚动标签加载成功",response.data.data);
   } catch (error) {
     console.error('获取标签数据失败', error);
@@ -615,18 +557,15 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     background-color: #62A89B;
-    /* 背景色保持一致 */
 
     /* 顶栏样式 */
     .topbar {
       background-color: rgba(78, 124, 114, 0.75);
-      /* 与 card 颜色一致 */
       padding: 15px;
       width: 100%;
       box-sizing: border-box;
       display: flex;
       justify-content: space-between;
-      /* 左右对齐 */
       align-items: center;
     }
 
@@ -657,7 +596,6 @@ onMounted(async () => {
 
       &:hover {
         color: #24d97f;
-        /* 鼠标悬停时的颜色 */
       }
     }
 
@@ -670,7 +608,6 @@ onMounted(async () => {
 
       &:hover {
         color: #24d97f;
-        /* 鼠标悬停时的颜色 */
       }
     }
 
@@ -679,11 +616,8 @@ onMounted(async () => {
       height: 100%; 
       flex-grow: 1; 
       display: flex;
-      /* 使用 Flexbox 布局 */
       flex-direction: row;
-      /* 设置 Flex 容器的子元素按垂直方向排列 */
       padding: 0px;
-      /* 给容器添加内边距，防止内容紧贴容器边缘 */
 
     }
 
@@ -691,15 +625,12 @@ onMounted(async () => {
       width: 85%;
       height: 100%;
       display: flex;
-      /* 使用 Flexbox 布局 */
       flex-direction: column;
-      /* 设置 Flex 容器的子元素按垂直方向排列 */
     }
 
     //副栏样式
     .secondbar {
       width: 15%;
-      //height: 200%;
       background-color: rgba(78, 124, 114, 0.75);
       flex: 1;
       margin-right: 0%;
@@ -707,7 +638,6 @@ onMounted(async () => {
       flex-direction: column;
     }
 
-    /* 创建房间和标签分类按钮样式 */
     .secondbar-link {
       width: 100%;
       height: 40px;
@@ -731,7 +661,6 @@ onMounted(async () => {
       display: flex;
       width: 100%;
       justify-content: space-between;
-      /* 输入框和按钮之间的间距 */
     }
 
     .search-input {
@@ -767,12 +696,8 @@ onMounted(async () => {
     //横线样式
     hr {
       border: 0;
-      /* 去掉默认的边框 */
       height: 2px;
-      /* 设置线条的高度 */
       background-color: #fff;
-      /* 设置背景颜色为黑色 */
-      //margin: 20px 0;       /* 设置上下的间距 */
     }
 
     /* 页面整体样式 */
@@ -780,31 +705,20 @@ onMounted(async () => {
       width: 100%;
       height: 425px;
       font-family: Arial, sans-serif;
-      /* 设置字体为 Arial 或 sans-serif 字体 */
       background-color: white;
-      /* 设置背景颜色为浅灰色 */
       padding: 20px;
-      /* 为容器添加内边距，防止内容紧贴边缘 */
     }
 
     /* 圆角容器 */
     .container {
       position: relative;
-      /* 设置容器为相对定位，便于子元素绝对定位 */
       background-image: url('/images/INFP调停者-04.png');
-      /* 设置背景图片，图片链接待替换 */
       background-size: cover;
-      /* 让背景图片覆盖整个容器，保持比例填充 */
       border-radius: 15px;
-      /* 设置容器圆角半径为15px，产生圆角效果 */
       padding: 30px;
-      /* 为容器添加40px的内边距，避免内容贴近边缘 */
       margin-top: 3px;
       min-height: 380px;
-      /* 设置容器的最小高度为300px，确保足够展示内容 */
       overflow: hidden;
-      /* 隐藏溢出容器的部分 */
-
     }
 
     /* 定义滚动动画 */
@@ -820,17 +734,14 @@ onMounted(async () => {
       }
     }
 
-    /* 定义滚动动画 */
     @keyframes scrollLeftToRight2 {
       0% {
         visibility: visible;
         transform: translateX(100%);
-        /* 从右侧外部开始 */
       }
 
       100% {
         transform: translateX(-100%);
-        /* 滚动到左侧外部 */
       }
     }
 
@@ -838,51 +749,31 @@ onMounted(async () => {
       display: flex;
       position: absolute;
       white-space: pre-wrap;
-      /* 防止按钮换行 */
       animation: scrollLeftToRight1 20s linear infinite;
-      /* 定义动画 */
       animation-delay: 0s;
       width: 100%;
-      /* 设置宽度为父容器的100%，占满可用空间 */
       height: 200px;
-      /* 设置高度为200px，控制按钮区域的高度 */
     }
 
     .top-container2 {
-      //display: flex;
-      //position: absolute;
       white-space: pre-wrap;
-      /* 防止按钮换行 */
-      //opacity: 0;                /* 默认透明 */
       visibility: hidden;
-      /* 默认隐藏 */
       animation: scrollLeftToRight2 20s linear infinite;
-      /* 定义动画 */
       animation-delay: 10s;
       width: 100%;
-      /* 设置宽度为父容器的100%，占满可用空间 */
       height: 200px;
-      /* 设置高度为200px，控制按钮区域的高度 */
     }
 
     /* 随机按钮样式 */
     .random-btn {
       position: absolute;
-      /* 设置按钮为绝对定位，确保其位置根据top和left调整 */
       padding: 10px 20px;
-      /* 设置按钮内边距，增加点击区域 */
       border-radius: 8px;
-      /* 设置按钮的圆角半径为8px */
       border: none;
-      /* 去掉按钮的边框 */
       color: white;
-      /* 设置按钮文字颜色为白色 */
       font-size: 16px;
-      /* 设置按钮文字大小为16px */
       cursor: pointer;
-      /* 设置鼠标悬停时显示为指针，表示可点击 */
       margin-right: 50px;
-      /* 按钮之间的间隔 */
     }
 
 
@@ -891,31 +782,22 @@ onMounted(async () => {
       display: flex;
       width: 100%;
       justify-content: space-around;
-      /* 左对齐 */
       align-items: center;
-      /* 垂直居中对齐 */
       margin-top: 30px;
       //gap: 20px;
-      /* 添加间距 */
     }
 
 
     .image-container {
       width: 200px;
-      /* 宽度设置为100px */
       height: 200px;
-      /* 高度设置为100px，确保它是方形的 */
       overflow: hidden;
-      /* 隐藏超出部分 */
     }
 
     .image-content {
       width: 100%;
-      /* 图片宽度占满容器 */
       height: 100%;
-      /* 图片高度占满容器 */
       object-fit: cover;
-      /* 保持图片比例并填满容器 */
     }
 
     .group_sug1 {
@@ -975,8 +857,6 @@ onMounted(async () => {
       display: flex;
       flex-direction:row ;
       gap:20px;
-      //justify-content: center;   /* 水平居中 */
-      //align-items: center;
     }
 
     .room-avatar2 {
@@ -1019,7 +899,7 @@ onMounted(async () => {
 
     .MT{
       display: flex;
-      justify-content: space-between;  /* 水平布局：将子元素分散排列，左边一个，右边一个 */
+      justify-content: space-between;  
       align-items: flex-end; 
       font-size: 14px;
       color:#777;
