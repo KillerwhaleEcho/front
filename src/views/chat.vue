@@ -96,9 +96,9 @@
         <div class="chat-container">
           <div v-for="msg in currentRoomMsg" :key="msg.id">
             <div
-              :class="{ 'left': msg.userName !== currentUserName, 'right': msg.userName === currentUserName}">
+              :class="{ 'left': msg.uid.toString() !== currentUserId, 'right': msg.uid.toString()=== currentUserId}">
               <div class="msgThreePart">
-                <img class="msgAvater" :src="msg.userAvatar" @click="manageRel(msg)">
+                <img class="msgAvater" :src="msg.userAvatar|| '/images/emoji/lips.png'"   @click="manageRel(msg)">
                 <div class="nameAndBubble">
                   <div class="msgName">{{ msg.userName }}</div>
                     <template v-if="msg.type === 'TEXT'">
@@ -131,7 +131,7 @@
           <!-- 消息发送区 -->
           <div class="send_area">
             <textarea type="text" class="chat-input" placeholder="请输入消息..." @keyup.enter="sendMessage"/>
-            <button class="send-button" @click="sendMessage">发送</button>
+            <button class="send-button" @click="sendMessage" >发送</button>
           </div>
         </div>
       </div>
@@ -168,6 +168,8 @@ const showEmoji = ref(false);
 // const fileType = ref(0); 
 const tokenValue = ref(null);
 const searchExist=ref('');
+const userAvatars = ref({});  
+const userNames = ref({});  
 const defaultAvatar = "/images/ENFP-竞选者.png";
 
 onMounted(async () => {
@@ -258,6 +260,8 @@ onMounted(async () => {
     catch (error) {
       console.error('聊天室加载失败', error);
     }
+
+    //fetchMessages();
 });
 
 
@@ -301,6 +305,8 @@ watch(currentRoomId, async (newRoomId) => {
       });
       console.log("获取房间历史消息成功",responseMsg.data);
       currentRoomMsg.value = responseMsg.data.data;
+      await loadAvatars();  // 加载头像
+      await loadNames();
     } catch (error) {
       console.error('noclick获取房间初始聊天记录失败', error);
     }
@@ -353,7 +359,69 @@ const clickEmoji = () => {
   showEmoji.value = !showEmoji.value;
   console.log("click使showEmoji更改为", showEmoji.value);
 };
+// 获取用户头像的缓存逻辑
+const avatarCache = async (uid) => {
+  // 如果头像已经缓存，直接返回
+  if (userAvatars.value[uid]) {
+    return userAvatars.value[uid];
+  }
 
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`http://localhost:8084/api/users/getInfo/${uid}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+    const avatar = response.data.data.avatar;
+    console.log("获取用户头像成功", avatar);
+    userAvatars.value[uid] = avatar;  // 缓存头像
+    return avatar;
+  } catch (error) {
+    console.error('获取头像失败:', error);
+    return '/images/emoji/lips.png';  // 如果失败，返回默认头像
+  }
+};
+
+// 加载消息的头像
+const loadAvatars = async () => {
+  // 遍历消息，获取每个用户的头像
+  for (const msg of currentRoomMsg.value) {
+    msg.userAvatar = await avatarCache(msg.uid);
+  }
+};
+
+// 获取用户名字的缓存逻辑
+const nameCache = async (uid) => {
+  // 如果头像已经缓存，直接返回
+  if (userNames.value[uid]) {
+    return userNames.value[uid];
+  }
+
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`http://localhost:8084/api/users/getInfo/${uid}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+    const name = response.data.data.username;
+    console.log("获取用户名字成功", name);
+    userNames.value[uid] = name;  // 缓存头像
+    return name;
+  } catch (error) {
+    console.error('获取名字失败:', error);
+    return ' ';  // 如果失败，返回默认头像
+  }
+};
+
+// 加载消息的头像
+const loadNames = async () => {
+  // 遍历消息，获取每个用户的头像
+  for (const msg of currentRoomMsg.value) {
+    msg.userName = await nameCache(msg.uid);
+  }
+};
 // 处理发送表情的事件
 const sendEmoji = (item) => {
   console.log("发送表情:", item);
@@ -438,7 +506,7 @@ const addBlacklist = async() =>{
   try {
     const token = localStorage.getItem('token'); 
     console.log("token", token);
-    const response = await axios.post('http://localhost:8084/api/users/blacklist', {
+    const response = await axios.post('http://localhost:8084/api/users/addblacklist', {
       "userId":friendId.value
     },{
         headers: {

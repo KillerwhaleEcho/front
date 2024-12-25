@@ -122,14 +122,20 @@ const login = async () => {
       username: loginuserName.value,
       password: loginPassword.value,
     });
-    console.log('登录成功:', response.data);
-    showMessage("登录成功", "success");
-    localStorage.setItem('token', response.data.data);
-    console.log("token", response.data.data);
-    console.log("登录用户名：",loginuserName.value);
-    loginuserName.value = "";
-    loginPassword.value = "";
-    router.push('/home');
+    if(response.data.code === 200){
+      console.log('登录成功:', response.data);
+      showMessage("登录成功", "success");
+      localStorage.setItem('token', response.data.data);
+      console.log("token", response.data.data);
+      console.log("登录用户名：",loginuserName.value);
+      loginuserName.value = "";
+      loginPassword.value = "";
+      router.push('/home');
+    }
+    else{
+      showMessage("登录失败", "error");
+    }
+    
 
   } 
   catch (error) {

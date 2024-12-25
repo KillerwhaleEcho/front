@@ -72,11 +72,14 @@
         <div class="modal-content3">
           <h3>搜索用户</h3>
           <div class="tagRooms">
-            <div class="group_sug2" v-for="(user, index) in UserData" :key="index">
-              <img :src="user.userAvater" alt="用户头像" class="room-avatar2">
+            <div class="group_sug2">
+              <img :src="UserData.avatar" alt="用户头像" class="room-avatar2">
               <div class="search-userNameandbutton">
-                  <div class="room-name2">{{ user.userName }}</div>
-                  <button class="startchatting" @click="startchattingRoom(user)">发起聊天</button>
+                  <div class="room-name2">{{ UserData.username }}</div>
+                  <div class="searchUserbtn">
+                    <button class="startchatting" @click="startchattingRoom(UserData)">发起聊天</button>
+                    <button class="startchatting" @click="gotoblacklist(UserData)">加入黑名单</button>
+                  </div>
               </div>
             </div>
           </div>
@@ -308,6 +311,26 @@ const startchattingRoom = async (user) =>{
     }
 }
 
+const gotoblacklist = async(UserData)=>{
+  try {
+    const token = localStorage.getItem('token'); 
+    console.log("token", token);
+    const response = await axios.post('http://localhost:8084/api/users/addblacklist', {
+      "userId":UserData.value
+    },{
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      },
+    );
+    console.log('加入黑名单成功', UserData.value);
+    alert('加入黑名单成功！');
+  } catch (error) {
+    console.error('加入黑名单失败', error);
+    alert('加入黑名单失败');
+  }
+}
+
 // 随机生成颜色的方法
 const getRandomColor=()=> {
   const letters = '0123456789ABCDEF';
@@ -427,8 +450,8 @@ const searchUserId = async () => {
            'Authorization': `Bearer ${token}`
         }
         });
-      UserData.value=response.data;
-      console.log("搜索到的用户id为：",response.data.data.userid);
+      UserData.value=response.data.data;
+      console.log("搜索到的用户id为：",response.data);
       showSearchModal.value=false;
       showUserModal.value=true;
     } catch (error) {
@@ -868,14 +891,19 @@ onMounted(async () => {
       justify-content: space-between;
     }
 
+    .searchUserbtn{
+      gap: 10px;
+    }
     .startchatting{
       background-color: white;
       width: 100px;
+      height: 100%;
       padding: 5px 10px;
       font-size: 14px;
       color: #87aca2;
       border: none;
-      border-radius: 4px;
+      border-radius: 10px;
+      margin-left: 10px;
       cursor: pointer;
       &:hover{
         background-color: #ededed;

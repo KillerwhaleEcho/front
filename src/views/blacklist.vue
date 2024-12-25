@@ -25,7 +25,7 @@
           <div class="list-user1">
             <div class="blackusercontainer" v-for="(user, index) in blacklist" :key="index">
               <img :src="user.userAvater" alt="用户头像" class="blackuserAvatar">
-              <div class="balck-userNameandbutton">
+              <div class="black-userNameandbutton">
                   <div class="blackuserName">
                     <div class="w">{{ user.userName }}</div>
                     <div class="w"> {{ user.userId }}</div>
@@ -57,8 +57,10 @@
         userId:user.userId
       });
       console.log("删除黑名单成员成功",response.data);
+      alert('移出黑名单成功');
     } catch (error) {
       console.error('删除黑名单成员失败', error);
+      alert('移出黑名单失败');
     }
   };
 
@@ -213,7 +215,7 @@
     height: 60px;
   }
   
-  .balck-userNameandbutton{
+  .black-userNameandbutton{
     width: 940px;
     display: flex;
     justify-content: space-between;
