@@ -24,11 +24,11 @@
          <div class="list-container">
           <div class="list-user1">
             <div class="blackusercontainer" v-for="(user, index) in blacklist" :key="index">
-              <img :src="user.userAvater" alt="用户头像" class="blackuserAvatar">
+              <img :src="user.other.avatar" alt="用户头像" class="blackuserAvatar">
               <div class="black-userNameandbutton">
                   <div class="blackuserName">
-                    <div class="w">{{ user.userName }}</div>
-                    <div class="w"> {{ user.userId }}</div>
+                    <div class="w">{{ user.other.username }}</div>
+                    <div class="w"> {{ user.other.userid }}</div>
                   </div>
                   <button class="movebtn" @click="moveBlacklist(user)">移出黑名单</button>
               </div>

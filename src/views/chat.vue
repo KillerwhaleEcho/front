@@ -70,11 +70,9 @@
               <div class="expAvater">
                 <div class="expNewmsg">
                   <div class="room-name2">{{ room.roomName }}</div>
-                  <div class="room-tag2">{{ room.roomTag }}</div>
-                  <div class="room-people-count2">{{ room.roomPeopleCount }}</div>
+                  <div v-if="room.roomType==='public'" class="room-people-count2">{{ room.roomPeopleCount }}</div>
                 </div>
-                <!-- 最新消息 -->
-                <div class="room-latest-message2">{{' '}}</div>
+                <div class="room-tag2">{{ room.tags.join(', ') }}</div>
               </div>
             </div>
           </div>
@@ -243,17 +241,24 @@ onMounted(async () => {
         'Authorization': `Bearer ${token}`
       }
     });
-      const data = response.data.data;
-      rooms.value = data;
-      console.log("聊天室加载成功", response.data.data);
-      currentRoomId.value = localStorage.getItem("currentRoomId");
-      console.log("跳转传递roomid：", currentRoomId.value);
-      // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
-      if (rooms.value.length > 0 && (currentRoomId.value == null || currentRoomId.value == 'undefined')) {
-        currentRoomId.value = rooms.value[0].roomId;
-        console.log("列表第一个房间：", currentRoomId);
-        localStorage.setItem("currentRoomId", currentRoomId.value);
+    const data = response.data.data;
+    rooms.value = data;
+    rooms.value.forEach(room => {
+      if (room.roomType === 'private') {
+        const otherUser =room.members.filter(member => member.uid !== currentUserId)[0];
+        room.roomAvatar=otherUser.head;
+        room.roomName=otherUser.username;
       }
+    });
+    console.log("聊天室加载成功", response.data.data);
+    currentRoomId.value = localStorage.getItem("currentRoomId");
+    console.log("跳转传递roomid：", currentRoomId.value);
+    // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
+    if (rooms.value.length > 0 && (currentRoomId.value == null || currentRoomId.value == 'undefined')) {
+      currentRoomId.value = rooms.value[0].roomId;
+      console.log("列表第一个房间：", currentRoomId);
+      localStorage.setItem("currentRoomId", currentRoomId.value);
+    }
     }
     catch (error) {
       console.error('聊天室加载失败', error);
@@ -282,10 +287,10 @@ watch(currentRoomId, async (newRoomId) => {
       roomTags.value=response1.data.data.tags;
     }
     if (roomData.roomType === 'private') {
-      const otherUser = members.filter(member => member.uid !== currentUserId)[0];
+      const otherUser =response1.data.data.members.filter(member => member.uid !== currentUserId)[0];
       roomAvatar.value =otherUser.head;
       roomName.value=otherUser.username;
-      if (otherUserId) {
+      if (otherUser) {
         console.log("找到私聊成员",roomName.value);
       } else {
         console.error("未找到房间中除当前用户外的其他成员");
@@ -418,6 +423,7 @@ const loadNames = async () => {
     msg.userName = await nameCache(msg.uid);
   }
 };
+
 // 处理发送表情的事件
 const sendEmoji = (item) => {
   console.log("发送表情:", item);
@@ -454,7 +460,19 @@ const leaveRoom = async () => {
     'Authorization': `Bearer ${token}`
       }
       });
-    currentRoomId.value=" ";
+    // 从后端获取房间数据
+    const response2 = await axios.get('http://localhost:8084/api/rooms/room-choose', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = response2.data.data;
+    rooms.value = data;
+    // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
+    if (rooms.value.length > 0 ) {
+      currentRoomId.value = rooms.value[0].roomId;
+      console.log("列表第一个房间：", currentRoomId.value);
+    }
     showRoomSettingModal.value=false;
     console.log('退出房间成功:', response.data);
   }
@@ -508,7 +526,7 @@ const addBlacklist = async() =>{
         }
       },
     );
-    console.log('加入黑名单成功', friendId.value);
+    console.log('加入黑名单成功', response.data);
     showfriendInfoModal.value = false; 
   } catch (error) {
     console.error('加入黑名单失败', error);
@@ -709,33 +727,28 @@ const sendMessage = async () => {
 
       .expNewmsg {
         display: flex;
+        width: 210px;
         flex-direction: row;
+        justify-content: space-between;
         gap: 20px;
       }
 
       // 房间名样式
       .room-name2 {
+        font-size: 24px;
         font-weight: bold;
         flex: 1;
       }
 
       .room-tag2 {
-        font-size: 16px;
+        font-weight: bold;
+        font-size: 12px;
       }
 
       // 房间人数样式
       .room-people-count2 {
         font-size: 14px;
         color: #777;
-      }
-
-      // 最新消息样式
-      .room-latest-message2 {
-        color: #555;
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
     }
 
