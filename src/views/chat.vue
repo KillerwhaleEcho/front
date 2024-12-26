@@ -508,7 +508,7 @@ const addBlacklist = async() =>{
         }
       },
     );
-    console.log('加入黑名单成功', friendId.value);
+    console.log('加入黑名单成功', response.data);
     showfriendInfoModal.value = false; 
   } catch (error) {
     console.error('加入黑名单失败', error);
