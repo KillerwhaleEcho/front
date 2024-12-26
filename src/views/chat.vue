@@ -30,7 +30,7 @@
           <div class="roomInfom">
             <div>房间名：{{ roomName }}</div>
             <div>id:{{ currentRoomId }}</div>
-            <div>标签：{{ roomTags }}</div>
+            <div>标签：{{ roomTags.join(', ') }}</div>
           </div>
           <div class="button-area">
             <button class="modal-close2" @click="leaveRoom">退出房间</button>
@@ -56,7 +56,7 @@
       <!-- 左侧聊天选择 -->
       <div class="chat_choose">
         <div class="chat_search">
-          <input type="text" class="search2-input" v-model="searchExist" placeholder="请输入搜索内容">
+          <input type="text" class="search2-input" v-model="searchExist" placeholder="请输入房间名">
           <button class="secondbar2-link" @click="searchExistRoom">搜索</button>
         </div>
         <div class="roomshow">
@@ -84,7 +84,7 @@
         <!-- 上侧信息展示 -->
         <div class="chat-info">
           <div class="room-header">
-            <img :src="roomAvatar"  alt="Room Avater" class="room-avatar" />
+            <img :src="roomAvatar||'/images/微信图片_20241226230237.png'"  alt="Room Avater" class="room-avatar" />
             <div class="room-name">{{roomName}}</div>
           </div>
           <img :src="'public/images/再加三个点(More Three Dots)_爱给网_aigei_com.png'" class="settingimg"
@@ -188,9 +188,6 @@ onMounted(async () => {
     }
     currentUserName.value = response.data.data.username;
     currentUserId.value = response.data.data.userid;
-    console.log("own2加载成功", response.data);
-    console.log("toux2加载成功", currentUserAvatar.value);
-    console.log("name2加载成功", currentUserName.value);
     }
     catch (error) {
       console.error('获取own2信息失败', error);
@@ -468,19 +465,16 @@ const leaveRoom = async () => {
     });
     const data = response2.data.data;
     rooms.value = data;
-    // 判断获取到的rooms数组是否有元素，如果有则将currentRoomId设为第一个房间的roomId
-    if (rooms.value.length > 0 ) {
-      currentRoomId.value = rooms.value[0].roomId;
-      console.log("列表第一个房间：", currentRoomId.value);
-    }
+    localStorage.setItem('currentRoomId', '');
     showRoomSettingModal.value=false;
+    window.location.reload();
     console.log('退出房间成功:', response.data);
   }
   catch (error) {
     console.log('退出房间失败');
   }
 }
-
+const  clear_data =()=> { localStorage.clear(); } 
 const manageRel = async (msg)=>{
   friendId.value=msg.uid;
   friendAvatar.value=msg.userAvatar;
@@ -884,6 +878,7 @@ const sendMessage = async () => {
       display: flex;
       flex-direction: column;
       height: 180px;
+      gap: 10px;
       background-color: #ffffff;
       box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
       border-radius: 0 0 40px 40px ; 
@@ -954,6 +949,8 @@ const sendMessage = async () => {
     position: relative;  /* 使得它成为定位上下文 */
     width: 30px;
     height: 30px;
+    margin-left: 10px;
+    margin-top: 15px;
     display: flex;
     justify-content: center;
     align-items: center;

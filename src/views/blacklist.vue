@@ -50,17 +50,18 @@
     try {
       const token = localStorage.getItem('token'); 
       const response =await axios.post(`http://localhost:8084/api/users/removeblacklist`,{
-      "userId":user.userid},
+      "userId":user.other.userid},
       {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
       console.log("删除黑名单成员成功",response.data);
-      //alert('移出黑名单成功');
+      alert('移出黑名单成功');
+      window.location.reload();
     } catch (error) {
       console.error('删除黑名单成员失败', error);
-      //alert('移出黑名单失败');
+      alert('移出黑名单失败');
     }
   };
 

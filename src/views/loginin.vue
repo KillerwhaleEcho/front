@@ -126,6 +126,7 @@ const login = async () => {
       console.log('登录成功:', response.data);
       showMessage("登录成功", "success");
       localStorage.setItem('token', response.data.data);
+      localStorage.setItem('currentRoomId', '');
       console.log("token", response.data.data);
       console.log("登录用户名：",loginuserName.value);
       loginuserName.value = "";

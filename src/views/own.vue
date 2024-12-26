@@ -139,6 +139,7 @@ const router = useRouter();
 const currentUserAvatar = ref('');
 const currentUserName = ref('');
 const currentUserId = ref('');
+const currentRoomId= ref('');
 const password = ref('');
 const showEditAvatarModal = ref(false);
 const showEditUsernameModal = ref(false);
@@ -173,6 +174,7 @@ const Avatar = [
 
 onMounted(async () => {
   try {
+    currentRoomId.value = localStorage.getItem('currentRoomId');
     currentUserId.value = localStorage.getItem('currentUserId');
     const token = localStorage.getItem('token');  
     const response = await axios.post('http://localhost:8084/api/users/own', {
@@ -189,9 +191,6 @@ onMounted(async () => {
     }
     currentUserName.value = response.data.data.username;
     currentUserId.value = response.data.data.userid;
-    console.log("own加载成功", response.data);
-    console.log("toux加载成功", response.data.data.avatar);
-    console.log("name加载成功", response.data.data.username);
     }
     catch (error) {
       console.error('获取own信息失败', error);
@@ -303,6 +302,7 @@ const deleteAccount = async() => {
 const signoutAccount = async() => {
   try {
     currentUserId.value='';
+    localStorage.setItem('currentRoomId', '');
     token.value='';
     console.log("退出账号成功！");
     router.push('/');
