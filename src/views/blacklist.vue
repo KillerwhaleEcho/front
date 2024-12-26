@@ -50,7 +50,7 @@
     try {
       const token = localStorage.getItem('token'); 
       const response =await axios.post(`http://localhost:8084/api/users/removeblacklist`,{
-      "userId":user.userid},
+      "userId":user.other.userid},
       {
         headers: {
           'Authorization': `Bearer ${token}`
