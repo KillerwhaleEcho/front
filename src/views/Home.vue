@@ -5,9 +5,9 @@
       <div class="topbar-content">
         <span class="topbar-title">StarBBPark</span>
         <div class="topbar-links">
-          <a href="http://localhost:5173/home" class="topbar-link3">首页社区</a>
-          <a href="http://localhost:5173/chat" class="topbar-link">消息</a>
-          <a href="http://localhost:5173/own" class="topbar-link">个人中心</a>
+          <router-link to="/home" class="topbar-link3">首页社区</router-link>
+          <router-link to="/chat" class="topbar-link">消息</router-link>
+          <router-link to="/own" class="topbar-link">个人中心</router-link>
         </div>
       </div>
     </div>
@@ -173,7 +173,7 @@
 
           <div class="group_sug1" v-for="(room, index) in rooms" :key="index" @click="group_sug1Click(room)">
             <div class="grp1_img">
-              <img :src="room.avatarUrl || defaultAvatar" alt="房间头像" class="room-avatar">
+              <img :src="room.roomAvatar || defaultAvatar" alt="房间头像" class="room-avatar">
             </div>
             <div class="room-name">{{ room.roomName }}</div>
             <div class="room-tag">{{ room.roomTag }}</div>
@@ -285,27 +285,48 @@ const handleTagClick = async (tagName) => {
     console.error('获取标签对应房间数据失败', error);
   }
 };
-const startchattingRoom = async (user) =>{
-  console.log("私聊对象id", user.id);
-  try {
-    const token = localStorage.getItem('token'); 
-      const response = await axios.post('http://localhost:8084/api/rooms/create', {
-        "receiverUid":user.id,
-        "roomType":"private",
-        "roomAvatar":user.userAvatar,
-      },{ 
+const startchattingRoom = async (UserData) =>{
+  console.log("私聊对象id", UserData.userid);
+  //检测自己是否在对方黑名单内
+  try{
+    const token = localStorage.getItem('token');
+    const response = await axios.post('http://localhost:8084/api/users/getblacklistuser', {
+      "userId":UserData.userid
+    },{
         headers: {
-           'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
-        });
-      roomId.value=response.data.roomId;
-      console.log('发起聊天成功', response.data);
-      localStorage.setItem("currentRoomId",roomId.value);
-      router.push('/chat');
-      showUserModal.value = false; 
-    } catch (error) {
-      console.error('发起聊天失败', error);
+      },
+    );
+    const otherblacklist=response.data.data;
+    if(otherblacklist.includes(currentUserId.value)){
+      alert("发起聊天失败");
     }
+    else{
+      try {
+        const token = localStorage.getItem('token'); 
+        const response = await axios.post('http://localhost:8084/api/rooms/create', {
+          "receiverUid":UserData.userid,
+          "roomType":"private",
+        },{ 
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+          });
+        roomId.value=response.data.roomId;
+        console.log('发起聊天成功', response.data);
+        localStorage.setItem("currentRoomId",roomId.value);
+        showUserModal.value = false; 
+        localStorage.setItem('currentRoomId', response.data.data.roomId);
+        router.push('/chat');
+      } catch (error) {
+        console.error('发起聊天失败', error);
+      }
+    }
+    console.log('检测黑名单成功', response.data);
+  }catch (error) {
+    console.error('检测黑名单失败', error);
+  }
 }
 
 const gotoblacklist = async(UserData)=>{

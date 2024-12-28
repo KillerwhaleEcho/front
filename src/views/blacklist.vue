@@ -5,9 +5,9 @@
         <div class="topbar4-content">
           <span class="topbar4-title">StarBBPark</span>
           <div class="topbar4-links">
-            <a href="http://localhost:5173/home" class="topbar4-link">首页社区</a>
-            <a href="http://localhost:5173/chat" class="topbar4-link">消息</a>
-            <a href="http://localhost:5173/own" class="topbar4-link1">个人中心</a>
+            <router-link to="/home" class="topbar4-link">首页社区</router-link>
+            <router-link to="/chat" class="topbar4-link">消息</router-link>
+            <router-link to="/own" class="topbar4-link1">个人中心</router-link>              
           </div>
         </div>
       </div>

@@ -5,9 +5,9 @@
       <div class="topbar2-content">
         <span class="topbar2-title">StarBBPark</span>
         <div class="topbar2-links">
-          <a href="http://localhost:5173/home" class="topbar2-link">首页社区</a>
-          <a href="http://localhost:5173/chat" class="topbar2-link2">消息</a>
-          <a href="http://localhost:5173/own" class="topbar2-link">个人中心</a>
+          <router-link to="/home" class="topbar2-link">首页社区</router-link>
+          <router-link to="/chat" class="topbar2-link2">消息</router-link>
+          <router-link to="/own" class="topbar2-link">个人中心</router-link>          
         </div>
       </div>
     </div>
@@ -91,7 +91,7 @@
               @click="showRoomSettingModal=true">
         </div>
         <!-- 聊天内容区域 -->
-        <div class="chat-container">
+        <div class="chat-container" id="chatContainer">
           <div v-for="msg in currentRoomMsg" :key="msg.id">
             <div
               :class="{ 'left': msg.uid.toString() !== currentUserId, 'right': msg.uid.toString()=== currentUserId}">
@@ -138,7 +138,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import Emoji from "../components/Emoji.vue";
@@ -169,6 +169,7 @@ const searchExist=ref('');
 const userAvatars = ref({});  
 const userNames = ref({});  
 const defaultAvatar = "/images/ENFP-竞选者.png";
+const chatContainer = ref(null);
 
 onMounted(async () => {
   try {
@@ -216,11 +217,14 @@ onMounted(async () => {
       const message = JSON.parse(event.data);
       console.log('解析后的消息:', message);
       currentRoomMsg.value.push(message);
+      scrollToBottom();
       } catch (error) {
         console.error('JSON 解析失败:', error);
         console.error('接收到的原始消息:', event.data);
       }
     };
+
+    scrollToBottom();
 
     // WebSocket 连接出错时
     socket.value.onerror = (error) => {
@@ -260,8 +264,6 @@ onMounted(async () => {
     catch (error) {
       console.error('聊天室加载失败', error);
     }
-
-    //fetchMessages();
 });
 
 
@@ -310,6 +312,8 @@ watch(currentRoomId, async (newRoomId) => {
       console.error('noclick获取房间初始聊天记录失败', error);
     }
 
+    scrollToBottom();
+
     if (socket.value) {
       socket.value.close(); 
     }
@@ -325,10 +329,20 @@ watch(currentRoomId, async (newRoomId) => {
     socket.value.onmessage = (event) => {
       const message = JSON.parse(event.data);
       currentRoomMsg.value.push(message);
+      scrollToBottom();
     };
-    console.log("currentUserId=",currentUserId.value);
   }
 });
+
+watch(currentRoomMsg, async () => {
+  await nextTick();
+  scrollToBottom();
+})
+
+function scrollToBottom() {
+  const chatContainer = document.getElementById('chatContainer');
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
 
 const searchExistRoom = async () => {
   if (searchExist.value) {
@@ -442,6 +456,7 @@ const sendEmoji = (item) => {
     console.log("向websocket发送消息失败",JSON.stringify(message));
     setTimeout(() => sendMessage(message), 1000); // 1秒后重试 
   }
+  scrollToBottom();
 };
 
 const clickRoom = (room) => {
@@ -490,23 +505,42 @@ const clickUser = async (roomUser)=>{
 
 const startchattingRoom2 = async () =>{
   console.log("私聊对象id", friendId.value);
-  try {
-    const token = localStorage.getItem('token'); 
-      const response = await axios.post('http://localhost:8084/api/rooms/create', {
-        "receiverUid":friendId.value,
-        "roomType":"private",
-      },{ 
+  try{
+    const token = localStorage.getItem('token');
+    const response = await axios.get('http://localhost:8084/api/users/getblacklistuser', {
+      "userId":friendId.value
+    },{
         headers: {
-           'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
-        });
-      //currentRoomId.value=response.data.data.roomId;
-      console.log('发起聊天成功', response.data);
-      showfriendInfoModal.value =false; 
-      showRoomSettingModal.value=false;
-    } catch (error) {
-      console.error('发起聊天失败', error);
+      },
+    );
+    const otherblacklist=response.data.data;
+    if(otherblacklist.includes(currentUserId.value)){
+      alert("发起聊天失败");
     }
+    else{
+      try {
+      const token = localStorage.getItem('token'); 
+        const response = await axios.post('http://localhost:8084/api/rooms/create', {
+          "receiverUid":friendId.value,
+          "roomType":"private",
+        },{ 
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+          });
+        currentRoomId.value=response.data.data.roomId;
+        console.log('发起聊天成功', response.data);
+        showfriendInfoModal.value =false; 
+        showRoomSettingModal.value=false;
+      } catch (error) {
+        console.error('发起聊天失败', error);
+      }
+    }
+  }catch (error) {
+    console.error('检测黑名单失败', error);
+  }
 }
 
 const addBlacklist = async() =>{
@@ -552,6 +586,7 @@ const sendMessage = async () => {
     if (!Array.isArray(currentRoomMsg.value)) {
       currentRoomMsg.value = [];
     }
+    scrollToBottom();
     document.querySelector('.chat-input').value = '';
   }
 };
@@ -801,7 +836,7 @@ const sendMessage = async () => {
       //消息展示区
       flex: 1;
       padding: 10px;
-      overflow-y: auto;
+      overflow-y: scroll;
       background-color: #ffffff;
       flex-direction: column;
       display: flex;
