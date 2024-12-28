@@ -175,7 +175,7 @@ onMounted(async () => {
   try {
     currentUserId.value = localStorage.getItem('currentUserId');
     const token = localStorage.getItem('token'); 
-    const response = await axios.post('http://localhost:8084/api/users/own', {
+    const response = await axios.post('http://192.168.142.166:8084/api/users/own', {
     }, {  
         headers: {
         'Authorization': `Bearer ${token}`
@@ -200,7 +200,7 @@ onMounted(async () => {
     tokenValue.value = token;
 
     // WebSocket连接地址
-    const websocketUrl = `ws://localhost:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
+    const websocketUrl = `ws://192.168.142.166:8084/ws/chat/${currentRoomId.value}/${currentUserId.value}`;
 
     // 创建 WebSocket 连接
     socket.value = new WebSocket(websocketUrl);
@@ -237,7 +237,7 @@ onMounted(async () => {
     };
 
     // 从后端获取房间数据
-    const response = await axios.get('http://localhost:8084/api/rooms/room-choose', {
+    const response = await axios.get('http://192.168.142.166:8084/api/rooms/room-choose', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -274,7 +274,7 @@ watch(currentRoomId, async (newRoomId) => {
     try {
     const token = tokenValue.value; 
 
-    const response1 = await axios.get(`http://localhost:8084/api/rooms/${newRoomId}`, {
+    const response1 = await axios.get(`http://192.168.142.166:8084/api/rooms/${newRoomId}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -286,9 +286,11 @@ watch(currentRoomId, async (newRoomId) => {
       roomTags.value=response1.data.data.tags;
     }
     if (roomData.roomType === 'private') {
-      const otherUser =response1.data.data.members.filter(member => member.uid !== currentUserId)[0];
+      const otherUser =response1.data.data.members.filter(member => member.userId.toString()
+      !== currentUserId.value)[0];
       roomAvatar.value =otherUser.head;
       roomName.value=otherUser.username;
+      console.log("roomname=",roomName.value);
       if (otherUser) {
         console.log("找到私聊成员",roomName.value);
       } else {
@@ -301,7 +303,7 @@ watch(currentRoomId, async (newRoomId) => {
   }
     try {
       const token = tokenValue.value; 
-      const responseMsg = await axios.get(`http://localhost:8084/api/messages/sync?roomId=${currentRoomId.value}`, {
+      const responseMsg = await axios.get(`http://192.168.142.166:8084/api/messages/sync?roomId=${currentRoomId.value}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       console.log("获取房间历史消息成功",responseMsg.data);
@@ -319,7 +321,7 @@ watch(currentRoomId, async (newRoomId) => {
     }
 
     // 重新建立 WebSocket 连接
-    const websocketUrl = `ws://localhost:8084/ws/chat/${newRoomId}/${currentUserId.value}`;
+    const websocketUrl = `ws://192.168.142.166:8084/ws/chat/${newRoomId}/${currentUserId.value}`;
     socket.value = new WebSocket(websocketUrl);
 
     socket.value.onopen = () => {
@@ -348,7 +350,7 @@ const searchExistRoom = async () => {
   if (searchExist.value) {
     try {
       const token = localStorage.getItem('token'); 
-      const response = await axios.post('http://localhost:8084/api/rooms/myroom-search', {
+      const response = await axios.post('http://192.168.142.166:8084/api/rooms/myroom-search', {
         "query": searchExist.value
         }, {  
         headers: { 'Authorization': `Bearer ${token}`}
@@ -380,7 +382,7 @@ const avatarCache = async (uid) => {
 
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`http://localhost:8084/api/users/getInfo/${uid}`, {
+    const response = await axios.get(`http://192.168.142.166:8084/api/users/getInfo/${uid}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       }
@@ -412,7 +414,7 @@ const nameCache = async (uid) => {
 
   try {
     const token = localStorage.getItem('token');
-    const response = await axios.get(`http://localhost:8084/api/users/getInfo/${uid}`, {
+    const response = await axios.get(`http://192.168.142.166:8084/api/users/getInfo/${uid}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       }
@@ -467,13 +469,13 @@ const clickRoom = (room) => {
 const leaveRoom = async () => {
   try {
     const token = tokenValue.value; 
-    const response = await axios.post(`http://localhost:8084/api/rooms/${currentRoomId.value}/leave`, {}, {  
+    const response = await axios.post(`http://192.168.142.166:8084/api/rooms/${currentRoomId.value}/leave`, {}, {  
      headers: {
     'Authorization': `Bearer ${token}`
       }
       });
     // 从后端获取房间数据
-    const response2 = await axios.get('http://localhost:8084/api/rooms/room-choose', {
+    const response2 = await axios.get('http://192.168.142.166:8084/api/rooms/room-choose', {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -507,7 +509,7 @@ const startchattingRoom2 = async () =>{
   console.log("私聊对象id", friendId.value);
   try{
     const token = localStorage.getItem('token');
-    const response = await axios.get('http://localhost:8084/api/users/getblacklistuser', {
+    const response = await axios.post('http://192.168.142.166:8084/api/users/getblacklistuser', {
       "userId":friendId.value
     },{
         headers: {
@@ -522,7 +524,7 @@ const startchattingRoom2 = async () =>{
     else{
       try {
       const token = localStorage.getItem('token'); 
-        const response = await axios.post('http://localhost:8084/api/rooms/create', {
+        const response = await axios.post('http://192.168.142.166:8084/api/rooms/create', {
           "receiverUid":friendId.value,
           "roomType":"private",
         },{ 
@@ -546,7 +548,7 @@ const startchattingRoom2 = async () =>{
 const addBlacklist = async() =>{
   try {
     const token = localStorage.getItem('token'); 
-    const response = await axios.post('http://localhost:8084/api/users/addblacklist', {
+    const response = await axios.post('http://192.168.142.166:8084/api/users/addblacklist', {
       "userId":friendId.value
     },{
         headers: {

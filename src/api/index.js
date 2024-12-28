@@ -30,7 +30,7 @@ axios.interceptors.response.use(function (response) {
 
 const base = {
   axios: axios,
-  baseUrl: 'http://localhost:5173/chat'
+  baseUrl: 'http://192.168.142.166:5173/chat'
 }
 
 export default base

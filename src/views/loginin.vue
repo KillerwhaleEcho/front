@@ -97,7 +97,7 @@ const showMessage = (text, type) => {
 
 const register = async () => {
   try {
-    const response = await axios.post('http://localhost:8084/api/users/register', {
+    const response = await axios.post('http://192.168.142.166:8084/api/users/register', {
       username: inputUsername.value,
       password: inputPassword.value,
     });
@@ -118,7 +118,7 @@ const register = async () => {
 // 登录请求
 const login = async () => {
   try {
-    const response = await axios.post('http://localhost:8084/api/users/login', {
+    const response = await axios.post('http://192.168.142.166:8084/api/users/login', {
       username: loginuserName.value,
       password: loginPassword.value,
     });

@@ -15,9 +15,9 @@
       <!-- 页面主体内容 -->
       <div class="home4-content">
         <div class="func-choose4">
-          <a href="http://localhost:5173/own" class="self-info4">个人信息</a>
+          <router-link to="/own" class="self-info4">个人信息</router-link>
           <hr>
-          <a href="http://localhost:5173/own/blacklist" class="blacklist4">黑名单</a>
+          <router-link to="/own/blacklist" class="blacklist4">黑名单</router-link>
         </div>
 
         <!-- 右侧黑名单列表 -->
@@ -49,7 +49,7 @@
   const moveBlacklist=async (user) => {
     try {
       const token = localStorage.getItem('token'); 
-      const response =await axios.post(`http://localhost:8084/api/users/removeblacklist`,{
+      const response =await axios.post(`http://192.168.142.166:8084/api/users/removeblacklist`,{
       "userId":user.other.userid},
       {
         headers: {
@@ -69,7 +69,7 @@
   try {
     const token = localStorage.getItem('token');
     // 从后端获取用户数据
-    const response = await axios.get('http://localhost:8084/api/users/getblacklist', {
+    const response = await axios.get('http://192.168.142.166:8084/api/users/getblacklist', {
       headers: {
         'Authorization': `Bearer ${token}`
       }

@@ -23,5 +23,5 @@ app.post('/api/users', (req, res) => {
 
 // 启动服务器
 app.listen(port, () => {
-    console.log(`API server is running at http://localhost:${port}`);
+    console.log(`API server is running at http://192.168.142.166:${port}`);
   });

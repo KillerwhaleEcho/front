@@ -16,11 +16,9 @@
     <div class="home3-content">
       <!-- 左侧边栏选择 -->
       <div class="func-choose">
-        <a href="http://localhost:5173/own" class="self-info">个人信息</a>
+        <router-link to="/own" class="self-info">个人信息</router-link>
         <hr>
-        <a href="http://localhost:5173/own/blacklist" class="blacklist">黑名单</a>
-        <!-- <hr>
-        <a href="http://localhost:5173/own/settings" class="setting">设置</a> -->
+        <router-link to="/own/blacklist" class="blacklist">黑名单</router-link>
       </div>
 
       <!-- 右边主体内容 -->
@@ -177,7 +175,7 @@ onMounted(async () => {
     currentRoomId.value = localStorage.getItem('currentRoomId');
     currentUserId.value = localStorage.getItem('currentUserId');
     const token = localStorage.getItem('token');  
-    const response = await axios.post('http://localhost:8084/api/users/own', {
+    const response = await axios.post('http://192.168.142.166:8084/api/users/own', {
     }, {  
         headers: {
         'Authorization': `Bearer ${token}`
@@ -206,7 +204,7 @@ const chooseAvatar=async(pic)=>{
 const uploadAvatar = async() => {
   try {
     const token = localStorage.getItem('token');  
-      const response = await axios.post('http://localhost:8084/api/users/upload-avatar', {
+      const response = await axios.post('http://192.168.142.166:8084/api/users/upload-avatar', {
         avatar:tempAvatar.value
       }, {  
         headers: {
@@ -232,7 +230,7 @@ const saveNewUsername = async () => {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:8084/api/users/upload-username', {
+      const response = await axios.post('http://192.168.142.166:8084/api/users/upload-username', {
         username: newUsername.value,
       }, {  
         headers: {
@@ -259,7 +257,7 @@ const saveNewPassword = async () => {
   if (newPassword.value && newPassword.value === confirmPassword.value) {
     try {
       const token = localStorage.getItem('token');  
-      const response = await axios.post('http://localhost:8084/api/users/update-password', {
+      const response = await axios.post('http://192.168.142.166:8084/api/users/update-password', {
         password: newPassword.value,
       }, {  
         headers: {
@@ -285,7 +283,7 @@ const saveNewPassword = async () => {
 const deleteAccount = async() => {
   try {
     const token = localStorage.getItem('token'); 
-    const response = await axios.post('http://localhost:8084/api/users/deleteAccount', {
+    const response = await axios.post('http://192.168.142.166:8084/api/users/deleteAccount', {
     }, {  
         headers: {
         'Authorization': `Bearer ${token}`

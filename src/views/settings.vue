@@ -5,9 +5,9 @@
         <div class="topbar5-content">
           <span class="topbar5-title">StarBBPark</span>
           <div class="topbar5-links">
-            <a href="http://localhost:5173/home" class="topbar5-link">首页社区</a>
-            <a href="http://localhost:5173/chat" class="topbar5-link">消息</a>
-            <a href="http://localhost:5173/own" class="topbar5-link1">个人中心</a>
+            <a href="http://192.168.142.166:5173/home" class="topbar5-link">首页社区</a>
+            <a href="http://192.168.142.166:5173/chat" class="topbar5-link">消息</a>
+            <a href="http://192.168.142.166:5173/own" class="topbar5-link1">个人中心</a>
           </div>
         </div>
       </div>
@@ -16,11 +16,11 @@
       <div class="home5-content">
         <!-- 左侧边栏选择 -->
         <div class="func-choose5">
-          <a href="http://localhost:5173/own" class="self-info5">个人信息</a>
+          <a href="http://192.168.142.166:5173/own" class="self-info5">个人信息</a>
           <hr>
-          <a href="http://localhost:5173/own/blacklist" class="blacklist5">黑名单</a>
+          <a href="http://192.168.142.166:5173/own/blacklist" class="blacklist5">黑名单</a>
           <hr>
-          <a href="http://localhost:5173/own/settings" class="setting5">设置</a>
+          <a href="http://192.168.142.166:5173/own/settings" class="setting5">设置</a>
         </div>
 
         <!-- 右侧设置容器 -->
