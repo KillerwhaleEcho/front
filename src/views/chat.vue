@@ -246,7 +246,7 @@ onMounted(async () => {
     rooms.value = data;
     rooms.value.forEach(room => {
       if (room.roomType === 'private') {
-        const otherUser =room.members.filter(member => member.uid !== currentUserId)[0];
+        const otherUser =room.members.filter(member => member.userId.toString() !== currentUserId.value)[0];
         room.roomAvatar=otherUser.head;
         room.roomName=otherUser.username;
       }
@@ -286,8 +286,8 @@ watch(currentRoomId, async (newRoomId) => {
       roomTags.value=response1.data.data.tags;
     }
     if (roomData.roomType === 'private') {
-      const otherUser =response1.data.data.members.filter(member => member.userId.toString()
-      !== currentUserId.value)[0];
+      const otherUser =response1.data.data.members.filter(member => member.userId.toString() !== currentUserId.value)[0];
+      console.log("curentuid=",currentUserId.value);
       roomAvatar.value =otherUser.head;
       roomName.value=otherUser.username;
       console.log("roomname=",roomName.value);
