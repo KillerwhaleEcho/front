@@ -631,7 +631,7 @@ const startchattingRoom2 = async () =>{
         currentRoomId.value=response.data.data.roomId;
 
         //判断房间是否已存在,如果不存在，则加入新的
-        if(!rooms.value.filter(room => room.roomId.toString() === currentRoomId.value)[0]){
+        if((rooms.value.filter(room => room.roomId.toString() === currentRoomId.value)[0])==="undefined"){
           const message = {
           uid: currentUserId.value,
           roomId: currentRoomId.value,
