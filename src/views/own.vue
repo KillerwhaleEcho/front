@@ -45,7 +45,7 @@
               <button class="edit-avatar" @click="showEditPasswordModal = true">修改密码</button>
             </div>
             <div class="setting-count">
-              <button class="edit-avatar" @click="showdeleteModal=true">注销账号</button>
+              <!-- <button class="edit-avatar" @click="showdeleteModal=true">注销账号</button> -->
               <button class="edit-avatar" @click="showsignoutModal=true">退出账号</button>
             </div>
           </div>

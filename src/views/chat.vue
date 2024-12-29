@@ -611,7 +611,8 @@ const startchattingRoom2 = async () =>{
       },
     );
     const otherblacklist=response.data.data;
-    if(otherblacklist.includes(currentUserId.value)){
+    console.log("对方黑名单为",otherblacklist);
+    if(otherblacklist.filter(user => user.userid.toString() === currentUserId.value)[0]){
       alert("发起聊天失败");
     }
     else{
@@ -631,7 +632,7 @@ const startchattingRoom2 = async () =>{
         currentRoomId.value=response.data.data.roomId;
 
         //判断房间是否已存在,如果不存在，则加入新的
-        if((rooms.value.filter(room => room.roomId.toString() === currentRoomId.value)[0])==="undefined"){
+        if((rooms.value.filter(room => room.roomId.toString() === currentRoomId.value)[0])===undefined){
           const message = {
           uid: currentUserId.value,
           roomId: currentRoomId.value,

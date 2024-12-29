@@ -44,12 +44,12 @@
       <!-- 标签房间弹窗 -->
       <div v-if="showTagRoomModal" class="modal-overlay3">
         <div class="modal-content3">
-          <h3>{{ currentTag }}</h3>
+          <h3>{{ currentsearchInput }}</h3>
           <div class="tagRooms">
             <div class="group_sug2" v-for="(room, index) in tagRoomsData" :key="index" @click="group_sug1Click(room)">
               <!-- 房间头像 -->
               <!-- <div class="grp2_img"> -->
-              <img :src="room.roomAvater || defaultAvatar" alt="房间头像" class="room-avatar2">
+              <img :src="room.roomAvatar || defaultAvatar" alt="房间头像" class="room-avatar2">
               <!-- </div> -->
               <div class="NCMT">
                 <div class="NC">
@@ -119,13 +119,13 @@
               <input type="text" v-model="roomTag" />
             </div>
             <div>
-              <label>属性：</label>
+              <!-- <label>属性：</label>
               <label>
                 <input type="radio" value="public" v-model="roomType" /> 公开
               </label>
               <label>
                 <input type="radio" value="private" v-model="roomType" /> 私密
-              </label>
+              </label> -->
             </div>
             <div class="modal-buttons">
               <button type="submit">确认</button>
@@ -176,7 +176,7 @@
               <img :src="room.roomAvatar || defaultAvatar" alt="房间头像" class="room-avatar">
             </div>
             <div class="room-name">{{ room.roomName }}</div>
-            <div class="room-tag">{{ room.roomTag }}</div>
+            <div class="room-tag">{{ room.tags.join(', ') }}</div>
             <div class="room-online">{{ room.onlineCount }} 在线</div>
           </div>
         </div>
@@ -188,7 +188,7 @@
         </div>
 
         <button class="secondbar-link" @click="showModal = true">创建房间</button>
-        <button class="secondbar-link" @click="showTagModal = true">标签分类</button>
+        <button class="secondbar-link" @click="showTagModal = true">全部标签</button>
       </div>
     </div>
   </div>
@@ -200,7 +200,7 @@
   import axios from 'axios';
   import { onMounted } from 'vue';
 
-
+  const currentsearchInput=ref('');
   const router = useRouter(); 
   const roomId = ref(''); 
   const roomName = ref('');
@@ -243,7 +243,10 @@ const Avatar = [
   "/images/ISFJ-守卫者.png",
   "/images/ISFP-探险家.png",
   "/images/ISTJ-物流师.png",
-  "/images/ISTP-鉴赏家.png"
+  "/images/ISTP-鉴赏家.png",
+  "/images/d66db03ebcc3d09d6a19d8f91585f7c.jpg",
+  "/images/b15db7872bfb14313a45b40e4c1bbab.jpg",
+  "/images/fd4e2ac8a5d539c7bc01952dd55387a.jpg"
 ]
   const defaultAvatar = "/images/ENFP-竞选者.png";
   
@@ -251,22 +254,26 @@ const Avatar = [
   const group_sug1Click = async (room) => {
   localStorage.setItem('currentRoomId', room.roomId);
   console.log("点击推荐房间",room.roomId);
-  currentRoomId.value = room.roomId;
-  try {
-    const token = localStorage.getItem('token'); 
-        const addRoomResponse = await axios.post(`http://192.168.142.166:8084/api/rooms/join`, {
-          roomId: currentRoomId.value,
-        },{  
-        headers: {
-        'Authorization': `Bearer ${token}`
+  if(room.roomType==="private"){
+    alert("加入房间失败");
+  }else{
+    currentRoomId.value = room.roomId;
+    try {
+      const token = localStorage.getItem('token'); 
+          const addRoomResponse = await axios.post(`http://192.168.142.166:8084/api/rooms/join`, {
+            roomId: currentRoomId.value,
+          },{  
+          headers: {
+          'Authorization': `Bearer ${token}`
+        }
+        });
+          console.log("房间加入成功", addRoomResponse);
       }
-      });
-        console.log("房间加入成功", addRoomResponse);
-    }
-    catch (error) {
-      console.error('房间加入失败', error);
-    }
-  router.push('/chat' ); 
+      catch (error) {
+        console.error('房间加入失败', error);
+      }
+    router.push('/chat' ); 
+  }
   };
 
 const handleTagClick = async (tagName) => {
@@ -414,6 +421,7 @@ const getRandomColor=()=> {
 const searchTag = async () => {
   if (searchInput.value) {
     try {
+      currentsearchInput.value=searchInput.value;
       const token = localStorage.getItem('token');  
     console.log("token", token);
     const response = await axios.get(`http://192.168.142.166:8084/api/rooms/getRoomsByTag/${searchInput.value}`,{ 
@@ -435,6 +443,7 @@ const searchTag = async () => {
 const searchRoomId = async () => {
   if (searchInput.value) {
     try {
+      currentsearchInput.value=searchInput.value;
       const token = localStorage.getItem('token'); 
       console.log("token", token);
       const response = await axios.get(`http://192.168.142.166:8084/api/rooms/getRoomsByRoomId/${searchInput.value}`, {
@@ -443,6 +452,7 @@ const searchRoomId = async () => {
         }
         });
       tagRoomsData.value=response.data.data;
+      console.log("搜索房间：",tagRoomsData.value);
       showSearchModal.value=false;
       showTagRoomModal.value=true;
     } catch (error) {
@@ -836,15 +846,19 @@ onMounted(async () => {
       height: 190px;
       border-radius: 8px;
       background-color: rgb(249, 250, 250);
-      padding: 10px;
-      text-align: center;
+      display: flex;                
+      gap: 10px;                 
+      text-align: center; 
+      justify-content: center;     
+      flex-direction: column;
+      margin: 20px;
     }
 
     .grp1_img {
       width: 80px;
       height: 80px;
-      margin-left: 25px;
       overflow: hidden;
+      margin-left: 40px;
     }
 
     .room-avatar {
