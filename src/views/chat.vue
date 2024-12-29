@@ -128,7 +128,7 @@
 
           <!-- 消息发送区 -->
           <div class="send_area">
-            <textarea type="text" class="chat-input" placeholder="请输入消息..." @keyup.enter="$refs.sendButton.click()"/>
+            <textarea type="text" class="chat-input" placeholder="请输入消息..." @keyup.enter="sendMessage"/>
             <button class="send-button" ref="sendButton" @click="sendMessage" >发送</button>
           </div>
         </div>
@@ -268,8 +268,6 @@ onMounted(async () => {
     }
 
     try {
-      const token = localStorage.getItem('token'); 
-      const currentUserIdValue = localStorage.getItem('currentUserId');
       // WebSocket 连接地址，假设是用当前用户ID来连接
       const websocketUrlRooms = `ws://192.168.142.166:8084/ws/${currentUserId.value}`;
 
@@ -283,42 +281,54 @@ onMounted(async () => {
 
       // WebSocket 接收到消息时
       roomsSocket.value.onmessage = (event) => {
-        console.log('接收到的房间数据消息:', event.data);
         try {
           const roomData = JSON.parse(event.data);
           console.log('解析后的房间数据:', roomData);
-          const newAvatar='';
-          const newId='';
-          const newName='';
           if(roomData.uid.toString()===currentUserId.value){
-            //找对面的头像和名字
-            newAvatar=friendAvatar.value,
-            newId=friendId.value,
-            newName=friendName.value
-          }else{
-            newAvatar=roomData.userAvatar
-            newId=roomData.uid,
-            newName=roomData.userName
-          }
-          const newroom = {
+            const newroom = {
             roomType:"private",
-            roomName:null,
-            roomAvatar:null,
+            roomName:friendName.value,
+            roomAvatar:friendAvatar.value,
+            roomId:roomData.roomId,
+            tags:[],
             members:[
               {
                 head:currentUserAvatar.value,
-                userId:currentUserId.value,
+                userId:parseInt(currentUserId.value, 10),
                 username:currentUserName.value
               },
               {
-                head:newAvatar,
-                userId:newId,
-                username:newName
+                head:friendAvatar.value,
+                userId:friendId.value,
+                username:friendName.value
+              }
+            ]
+           }
+           rooms.value.push(newroom);
+          }else{
+            const newroom = {
+            roomType:"private",
+            roomName:roomData.userName,
+            roomAvatar:roomData.userAvatar,
+            roomId:roomData.roomId,
+            tags:[],
+            members:[
+              {
+                head:currentUserAvatar.value,
+                userId:parseInt(currentUserId.value, 10),
+                username:currentUserName.value
+              },
+              {
+                head:roomData.userAvatar,
+                userId:roomData.uid,
+                username:roomData.userName
               }
             ]
           }
           // 更新房间列表
           rooms.value.push(newroom);
+          }
+          console.log("更新后的房间列表为：",rooms.value);
         } catch (error) {
           console.error('房间数据 JSON 解析失败:', error);
         }
@@ -415,7 +425,8 @@ watch(currentRoomMsg, async () => {
   scrollToBottom();
 })
 
-function scrollToBottom() {
+const scrollToBottom=async() =>{
+  await nextTick();
   const chatContainer = document.getElementById('chatContainer');
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
@@ -675,7 +686,7 @@ const sendMessage = async () => {
       roomId: currentRoomId.value,
       type:"TEXT",
       content: {
-        text:content
+        text:content.trim()
       },
       userName: currentUserName.value, 
       userAvatar: currentUserAvatar.value, 
