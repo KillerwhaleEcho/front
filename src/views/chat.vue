@@ -128,8 +128,8 @@
 
           <!-- 消息发送区 -->
           <div class="send_area">
-            <textarea type="text" class="chat-input" placeholder="请输入消息..." @keyup.enter="sendMessage"/>
-            <button class="send-button" @click="sendMessage" >发送</button>
+            <textarea type="text" class="chat-input" placeholder="请输入消息..." @keyup.enter="$refs.sendButton.click()"/>
+            <button class="send-button" ref="sendButton" @click="sendMessage" >发送</button>
           </div>
         </div>
       </div>
@@ -142,8 +142,10 @@ import { ref, watch, nextTick } from 'vue';
 import axios from 'axios';
 import { onMounted } from 'vue';
 import Emoji from "../components/Emoji.vue";
+import { onBeforeUnmount } from 'vue';
 
 const socket = ref(null); // WebSocket连接对象
+const roomsSocket = ref(null);
 const currentUserId = ref(null);
 const rooms = ref([]);
 const currentRoomId = ref(null);
@@ -264,6 +266,77 @@ onMounted(async () => {
     catch (error) {
       console.error('聊天室加载失败', error);
     }
+
+    try {
+      const token = localStorage.getItem('token'); 
+      const currentUserIdValue = localStorage.getItem('currentUserId');
+      // WebSocket 连接地址，假设是用当前用户ID来连接
+      const websocketUrlRooms = `ws://192.168.142.166:8084/ws/${currentUserId.value}`;
+
+      // 创建新的 WebSocket 连接
+      roomsSocket.value = new WebSocket(websocketUrlRooms);
+
+      // WebSocket 连接打开时
+      roomsSocket.value.onopen = () => {
+        console.log('房间数据 WebSocket 连接已打开');
+      };
+
+      // WebSocket 接收到消息时
+      roomsSocket.value.onmessage = (event) => {
+        console.log('接收到的房间数据消息:', event.data);
+        try {
+          const roomData = JSON.parse(event.data);
+          console.log('解析后的房间数据:', roomData);
+          const newAvatar='';
+          const newId='';
+          const newName='';
+          if(roomData.uid.toString()===currentUserId.value){
+            //找对面的头像和名字
+            newAvatar=friendAvatar.value,
+            newId=friendId.value,
+            newName=friendName.value
+          }else{
+            newAvatar=roomData.userAvatar
+            newId=roomData.uid,
+            newName=roomData.userName
+          }
+          const newroom = {
+            roomType:"private",
+            roomName:null,
+            roomAvatar:null,
+            members:[
+              {
+                head:currentUserAvatar.value,
+                userId:currentUserId.value,
+                username:currentUserName.value
+              },
+              {
+                head:newAvatar,
+                userId:newId,
+                username:newName
+              }
+            ]
+          }
+          // 更新房间列表
+          rooms.value.push(newroom);
+        } catch (error) {
+          console.error('房间数据 JSON 解析失败:', error);
+        }
+      };
+
+      // WebSocket 连接出错时
+      roomsSocket.value.onerror = (error) => {
+        console.error('房间数据 WebSocket 连接出错', error);
+      };
+
+      // WebSocket 连接关闭时
+      roomsSocket.value.onclose = () => {
+        console.log('房间数据 WebSocket 连接已关闭');
+      };
+
+    } catch (error) {
+      console.error('房间数据 WebSocket 出错', error);
+    }
 });
 
 
@@ -330,6 +403,7 @@ watch(currentRoomId, async (newRoomId) => {
 
     socket.value.onmessage = (event) => {
       const message = JSON.parse(event.data);
+      console.log('接收到的原始消息:', event.data);
       currentRoomMsg.value.push(message);
       scrollToBottom();
     };
@@ -345,6 +419,15 @@ function scrollToBottom() {
   const chatContainer = document.getElementById('chatContainer');
   chatContainer.scrollTop = chatContainer.scrollHeight;
 }
+
+onBeforeUnmount(() => {
+  if (roomsSocket.value) {
+    roomsSocket.value.close();
+  }
+  if (socket.value) {
+    socket.value.close();
+  }
+});
 
 const searchExistRoom = async () => {
   if (searchExist.value) {
@@ -491,7 +574,6 @@ const leaveRoom = async () => {
     console.log('退出房间失败');
   }
 }
-const  clear_data =()=> { localStorage.clear(); } 
 const manageRel = async (msg)=>{
   friendId.value=msg.uid;
   friendAvatar.value=msg.userAvatar;
@@ -523,7 +605,7 @@ const startchattingRoom2 = async () =>{
     }
     else{
       try {
-      const token = localStorage.getItem('token'); 
+        const token = localStorage.getItem('token'); 
         const response = await axios.post('http://192.168.142.166:8084/api/rooms/create', {
           "receiverUid":friendId.value,
           "roomType":"private",
@@ -532,10 +614,33 @@ const startchattingRoom2 = async () =>{
             'Authorization': `Bearer ${token}`
           }
           });
-        currentRoomId.value=response.data.data.roomId;
         console.log('发起聊天成功', response.data);
         showfriendInfoModal.value =false; 
         showRoomSettingModal.value=false;
+        currentRoomId.value=response.data.data.roomId;
+
+        //判断房间是否已存在,如果不存在，则加入新的
+        if(!rooms.value.filter(room => room.roomId.toString() === currentRoomId.value)[0]){
+          const message = {
+          uid: currentUserId.value,
+          roomId: currentRoomId.value,
+          type:"TEXT",
+          content: {
+            text:friendId.value.toString()
+          },
+          userName: currentUserName.value, 
+          userAvatar: currentUserAvatar.value, 
+          };
+
+          if (roomsSocket.value && roomsSocket.value.readyState === WebSocket.OPEN) {   
+            roomsSocket.value.send(JSON.stringify(message)); 
+            console.log("向roomsocket发送消息成功",JSON.stringify(message));
+          } else { 
+            console.log("向roomsocket发送消息失败",JSON.stringify(message));
+            setTimeout(() => sendMessage(message), 1000); // 1秒后重试 
+          }
+        }
+        
       } catch (error) {
         console.error('发起聊天失败', error);
       }
@@ -758,7 +863,7 @@ const sendMessage = async () => {
 
       .expNewmsg {
         display: flex;
-        width: 210px;
+        width: 190px;
         flex-direction: row;
         justify-content: space-between;
         gap: 20px;
@@ -992,7 +1097,7 @@ const sendMessage = async () => {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 100;
 }
   }
   .modal-overlay888 {
